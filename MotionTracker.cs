@@ -133,6 +133,8 @@ namespace MotionTracker
                 // add an Arrow sprite and rebuild the asset bundle or create a separate asset bundle for the arrow and Cougar and anything else.
                 // 
                 // animalPingPrefabs.Add(PingManager.AnimalType.Arrow, GameObject.Instantiate(assetBundle.LoadAsset<GameObject>("arrow"), prefabSafe.transform));
+                
+                animalPingPrefabs.Add(PingManager.AnimalType.Arrow, GameObject.Instantiate(assetBundle.LoadAsset<GameObject>("rabbit"), prefabSafe.transform));  // This needs an Arrow asset.  Just use rabbit for now.
 
 
                 spraypaintPingPrefabs = new Dictionary<ProjectileType, GameObject>();

@@ -25,11 +25,19 @@ using System.Runtime.CompilerServices;
 // or you can make your own new bundle, and load it in addition
 // the assetbundle  creating is vanilla unity. a bit easier than the addressables for MC
 
+// Digitalzombie — 1/3/2025 at 5:27 PM
+// you did add the arrows to the animal enum, but aren't using it yet. try copying what I do to the animals 
+// right now you only get the position of the arrows in the console in the same frame they get instantiated
+// they might not be moved to the right position at that point in time yet. probably just too early. thats why your coordinates are all over the place 
+// the Pingcomponent that gets added to the animals  updates the position regulary and translates it to the UI
+// the position on the UI gets determined just by distance and angle to lookingdirection
+
 
 namespace MotionTracker
 {
 
     [HarmonyLib.HarmonyPatch(typeof(GearItem), "Awake")]
+    // [HarmonyLib.HarmonyPatch(typeof(GearItem), "Start")]
     public class GearItemAwakePatch
     {
         //public void LogMessage(string message, [CallerLineNumber] int lineNumber = 0, [CallerMemberName] string caller = null)
@@ -39,51 +47,54 @@ namespace MotionTracker
 
         public static void Postfix(ref GearItem __instance)
         {
-            // MelonLogger.Msg("See " + __instance.name);  // This could be a lot of log data!
+            // MelonLogger.Msg("[MotionTracker].Harmony.Postfix.50 See " + __instance.name);  // This could be a lot of log data!
 
-            if (__instance.name.Contains("Arrow"))
+            if (__instance.gameObject.name.Contains("Arrow"))
             {
-                // MelonLogger.Msg("See " + __instance.name);
-                // MelonLogger.Msg("See " + __instance.name);
-
-                if (__instance.m_InPlayerInventory)
-                {
-                    MelonLogger.Msg("See " + __instance.name + " in the player's inventory.");
-                }
-                else
-                {
-                    MelonLogger.Msg("See " + __instance.name + " not in the player's inventory.");
-                }
+                // Add the Pingcomponent to the Arrow.  The pingComponent updates the position regulary and translates it to the UI
+                MelonLogger.Msg("[MotionTracker].Harmony.Postfix.55 See some kind of Arrow (" + __instance.name + ") and adding PingComponent to object.");
+                __instance.gameObject.AddComponent<PingComponent>().Initialize(PingManager.AnimalType.Arrow);
 
                 if (__instance.gameObject.name.Contains("GEAR_Arrow"))
                 {
-                    MelonLogger.Msg("GEAR_Arrow seen at " + __instance.gameObject.transform.position);
+                    MelonLogger.Msg("[MotionTracker].Harmony.Postfix.73 " + __instance.gameObject.name + " seen at " + __instance.gameObject.transform.position);
                 }
                 else if (__instance.gameObject.name.Contains("GEAR_BrokenArrow"))
                 {
-                    MelonLogger.Msg("GEAR_BrokenArrow seen at " + __instance.gameObject.transform.position);
+                    MelonLogger.Msg("[MotionTracker].Harmony.Postfix.77 " + __instance.gameObject.name + " seen at " + __instance.gameObject.transform.position);
                 }
                 else if (__instance.gameObject.name.Contains("GEAR_ArrowHardened"))
                 {
-                    MelonLogger.Msg("GEAR_ArrowHardened seen at " + __instance.gameObject.transform.position);
+                    MelonLogger.Msg("[MotionTracker].Harmony.Postfix.81 " + __instance.gameObject.name + " seen at " + __instance.gameObject.transform.position);
                 }
                 else if (__instance.gameObject.name.Contains("GEAR_BrokenArrowHardened"))
                 {
-                    MelonLogger.Msg("GEAR_BrokenArrowHardened seen at " + __instance.gameObject.transform.position);
+                    MelonLogger.Msg("[MotionTracker].Harmony.Postfix.85 " + __instance.gameObject.name + " seen at " + __instance.gameObject.transform.position);
                 }
                 else if (__instance.gameObject.name.Contains("GEAR_ArrowManufactured"))
                 {
-                    MelonLogger.Msg("GEAR_ArrowManufactured seen at " + __instance.gameObject.transform.position);
+                    MelonLogger.Msg("[MotionTracker].Harmony.Postfix.89 " + __instance.gameObject.name + " seen at " + __instance.gameObject.transform.position);
                 }
                 else if (__instance.gameObject.name.Contains("GEAR_BrokenArrowManufactured"))
                 {
-                    MelonLogger.Msg("GEAR_BrokenArrowManufactured seen at " + __instance.gameObject.transform.position);
+                    MelonLogger.Msg("[MotionTracker].Harmony.Postfix.93 " + __instance.gameObject.name + " seen at " + __instance.gameObject.transform.position);
                 }
 
             }
         }
     }
 
+    // Something about deleting arrow pingComponents?  Maybe?  
+    //[HarmonyLib.HarmonyPatch(typeof(GearItem), "OnDisable")]
+    //public class GearDisablePatch
+    //{
+    //    public static void Postfix(ref GearItem __instance)
+    //    {
+    //        __instance.
+    //        MelonLogger.Msg("[MotionTracker].Harmony.GearDisablePatch.Postfix.105 ManualDeleting " + __instance.gameObject.name + " seen at " + __instance.gameObject.transform.position);
+    //        PingComponent.ManualDelete(__instance.gameObject.GetComponent<PingComponent>());
+    //    }
+    //}
 
     [HarmonyLib.HarmonyPatch(typeof(BaseAi), "Start")]
     public class AiAwakePatch

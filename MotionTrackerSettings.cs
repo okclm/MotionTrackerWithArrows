@@ -111,7 +111,7 @@ namespace MotionTracker
 
         // CLM - Arrows!
         [Name("Show Arrows")]
-        [Description("Show Arrows on radat")]
+        [Description("Show Arrows on radar")]
         public bool showArrows = true;
 
 

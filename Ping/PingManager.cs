@@ -16,6 +16,7 @@ namespace MotionTracker
         // public enum AnimalType { Crow, Rabbit, Stag, Doe, Wolf, Timberwolf, Bear, Moose, PuffyBird };
         
         // CLM - Hack... adding Arrow to the AnimalType enum so we can look for Arrows in the scene
+        // CLM - adding Cougar to the AnimalType enum so we can track cougars in the scene
         public enum AnimalType { Crow, Rabbit, Stag, Doe, Wolf, Timberwolf, Bear, Moose, PuffyBird, Cougar, Arrow };
 
         public static bool isVisible = false;
