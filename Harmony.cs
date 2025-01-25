@@ -31,7 +31,7 @@ using System.Runtime.CompilerServices;
 // they might not be moved to the right position at that point in time yet. probably just too early. thats why your coordinates are all over the place 
 // the Pingcomponent that gets added to the animals  updates the position regulary and translates it to the UI
 // the position on the UI gets determined just by distance and angle to lookingdirection
-
+// https://discord.com/channels/322211727192358914/347067457564966913/1320148432492691456
 
 namespace MotionTracker
 {
@@ -52,37 +52,84 @@ namespace MotionTracker
             if (__instance.gameObject.name.Contains("Arrow"))
             {
                 // Add the Pingcomponent to the Arrow.  The pingComponent updates the position regulary and translates it to the UI
-                MelonLogger.Msg("[MotionTracker].Harmony.Postfix.55 See some kind of Arrow (" + __instance.name + ") and adding PingComponent to object.");
+
+                // Don't add PingComponent if this is NOT a cloned item.
+                //if (__instance.gameObject.name.Contains("(Clone)"))
+                //{
+                //    MelonLogger.Msg("[MotionTracker].Harmony.Postfix.59 See some kind of cloned Arrow (" + __instance.name + ") and adding PingComponent to object.");
+                //    __instance.gameObject.AddComponent<PingComponent>().Initialize(PingManager.AnimalType.Arrow);
+                //}
+                //else  
+                //{
+                //    MelonLogger.Msg("[MotionTracker].Harmony.Postfix.64 See some kind of NON-CLONED Arrow (" + __instance.name + ") so NOT adding PingComponent to object.");
+                //}
+
+                MelonLogger.Msg("[MotionTracker].Harmony.Postfix.67 See some kind of Arrow (" + __instance.name + ") and adding PingComponent to object.");
                 __instance.gameObject.AddComponent<PingComponent>().Initialize(PingManager.AnimalType.Arrow);
+
+                // return; // Enough.  Return.
 
                 if (__instance.gameObject.name.Contains("GEAR_Arrow"))
                 {
-                    MelonLogger.Msg("[MotionTracker].Harmony.Postfix.73 " + __instance.gameObject.name + " seen at " + __instance.gameObject.transform.position);
+                    MelonLogger.Msg("[MotionTracker].Harmony.Postfix.74 " + __instance.gameObject.name + " seen at " + __instance.gameObject.transform.position);
                 }
                 else if (__instance.gameObject.name.Contains("GEAR_BrokenArrow"))
                 {
-                    MelonLogger.Msg("[MotionTracker].Harmony.Postfix.77 " + __instance.gameObject.name + " seen at " + __instance.gameObject.transform.position);
+                    MelonLogger.Msg("[MotionTracker].Harmony.Postfix.78 " + __instance.gameObject.name + " seen at " + __instance.gameObject.transform.position);
                 }
                 else if (__instance.gameObject.name.Contains("GEAR_ArrowHardened"))
                 {
-                    MelonLogger.Msg("[MotionTracker].Harmony.Postfix.81 " + __instance.gameObject.name + " seen at " + __instance.gameObject.transform.position);
+                    MelonLogger.Msg("[MotionTracker].Harmony.Postfix.82 " + __instance.gameObject.name + " seen at " + __instance.gameObject.transform.position);
                 }
                 else if (__instance.gameObject.name.Contains("GEAR_BrokenArrowHardened"))
                 {
-                    MelonLogger.Msg("[MotionTracker].Harmony.Postfix.85 " + __instance.gameObject.name + " seen at " + __instance.gameObject.transform.position);
+                    MelonLogger.Msg("[MotionTracker].Harmony.Postfix.86 " + __instance.gameObject.name + " seen at " + __instance.gameObject.transform.position);
                 }
                 else if (__instance.gameObject.name.Contains("GEAR_ArrowManufactured"))
                 {
-                    MelonLogger.Msg("[MotionTracker].Harmony.Postfix.89 " + __instance.gameObject.name + " seen at " + __instance.gameObject.transform.position);
+                    MelonLogger.Msg("[MotionTracker].Harmony.Postfix.90 " + __instance.gameObject.name + " seen at " + __instance.gameObject.transform.position);
                 }
                 else if (__instance.gameObject.name.Contains("GEAR_BrokenArrowManufactured"))
                 {
-                    MelonLogger.Msg("[MotionTracker].Harmony.Postfix.93 " + __instance.gameObject.name + " seen at " + __instance.gameObject.transform.position);
+                    MelonLogger.Msg("[MotionTracker].Harmony.Postfix.94 " + __instance.gameObject.name + " seen at " + __instance.gameObject.transform.position);
                 }
 
+            }   // Arrow
+        }
+    }
+
+    // Let's talk Unity events.  https://gamedevbeginner.com/start-vs-awake-in-unity/
+    // Awake, OnEnable, Start, FixedUpdate, Update, LateUpdate,OnDisable, and OnDestroy.
+    // From the object inspector, I think there is not an OnDisable event.
+    // But I think there IS an OnDestroy event.
+
+    //[HarmonyLib.HarmonyPatch(typeof(GearItem), "OnDisable")]
+    //public class GearItemDisablePatch
+    //{
+    //    public static void Postfix(ref GearItem __instance)
+    //    {
+    //        MelonLogger.Msg("[MotionTracker].Harmony.GearItemDisablePatch.Postfix.97  (" + __instance.DisplayName + ") OnDisable event.");
+    //        // PingComponent.ManualDelete(__instance.gameObject.GetComponent<PingComponent>());
+    //    }
+    //}
+
+    [HarmonyLib.HarmonyPatch(typeof(GearItem), "OnDestroy")]
+    public class GearItemDestroyPatch
+    { 
+        public static void Postfix(ref GearItem __instance)
+        {
+            if (__instance.gameObject.GetComponent<PingComponent>())
+            {
+                MelonLogger.Msg("[MotionTracker].Harmony.GearItemDestroyPatch.Postfix.123  (" + __instance.DisplayName + ") OnDestroy event.");
+                PingComponent.ManualDelete(__instance.gameObject.GetComponent<PingComponent>());
+            }
+            else
+            {
+                // MelonLogger.Msg("[MotionTracker].Harmony.GearItemDestroyPatch.Postfix.123 No PingComponent to delete."); // Lot of logged data
             }
         }
     }
+
 
     // Something about deleting arrow pingComponents?  Maybe?  
     //[HarmonyLib.HarmonyPatch(typeof(GearItem), "OnDisable")]
