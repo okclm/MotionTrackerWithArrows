@@ -16,6 +16,7 @@ namespace MotionTracker
         }
                
         public GameObject attachedGameObject;     
+        public GearItem attachedGearItem;     
         public PingManager.AnimalType animalType;
         public ProjectileType spraypaintType;
         public PingCategory assignedCategory;
@@ -141,48 +142,90 @@ namespace MotionTracker
         {
             if (pingComponent != null)
             {
-                MelonLogger.Msg("[MotionTracker].PingComponents.ManualDelete.144: pingComponent.name = (" + pingComponent.name + ")");
+                #if DEBUG
+                    MelonLogger.Msg("[MotionTracker].PingComponents.ManualDelete.146: pingComponent.name = (" + pingComponent.name + ")");
+                #endif
+
                 pingComponent.DeleteIcon();
                 GameObject.Destroy(pingComponent);
             }
             else
             {
-                MelonLogger.Msg("[MotionTracker].PingComponents.ManualDelete.150: pingComponent is NULL so no delete.");
+                #if DEBUG
+                    MelonLogger.Msg("[MotionTracker].PingComponents.ManualDelete.151: pingComponent is NULL so no delete.");
+                #endif
             }
         }
 
         [HideFromIl2Cpp]
         public void SetVisible(bool visibility)
         {
+
+            if (!canvasGroup)   // canvasGroup is null.  So return.
+            {
+                MelonLogger.Msg("[MotionTracker].PingComponents.SetVisible.161: canvasGroup null so not setting visibity (" + visibility + ") for pingComponent.name = (" + this.name + ")");
+                return; 
+            }
+
             if (AllowedToShow() && visibility)
             {
-                canvasGroup.alpha = 1f;
-                if (animalType == PingManager.AnimalType.Arrow)
+                try
                 {
-                    MelonLogger.Msg("[MotionTracker].PingComponents.SetVisible.162: Setting canvasGroup.alpha = 1f for pingComponent.name = (" + this.name + ")");
+                    canvasGroup.alpha = 1f;
                 }
+                catch (Exception e)
+                {
+                    MelonLogger.Msg("[MotionTracker].PingComponents.SetVisible.166: Exception thrown (" + e.Message + ") when setting canvasGroup.alpha = 1f for pingComponent.name = (" + this.name + ")");
+                    // throw;
+                }
+
+                //if (animalType == PingManager.AnimalType.Arrow)
+                //{
+                    // MelonLogger.Msg("[MotionTracker].PingComponents.SetVisible.162: Setting canvasGroup.alpha = 1f for pingComponent.name = (" + this.name + ")");
+                //}
             }
             else
             {
-                canvasGroup.alpha = 0f;
-                if (animalType == PingManager.AnimalType.Arrow)
+                try
                 {
-                    // MelonLogger.Msg("[MotionTracker].PingComponents.SetVisible.170: Setting canvasGroup.alpha = 0f for pingComponent.name = (" + this.name + ")");
+                    canvasGroup.alpha = 0f;
                 }
+                catch (Exception e)
+                {
+                    MelonLogger.Msg("[MotionTracker].PingComponents.SetVisible.183: Exception thrown (" + e.Message + ") when setting canvasGroup.alpha = 0f for pingComponent.name = (" + this.name + ")");
+                    // throw;
+                }
+
+                // canvasGroup.alpha = 0f;
+                //if (animalType == PingManager.AnimalType.Arrow)
+                //{
+                    // MelonLogger.Msg("[MotionTracker].PingComponents.SetVisible.170: Setting canvasGroup.alpha = 0f for pingComponent.name = (" + this.name + ")");
+                //}
             }
         }
 
         [HideFromIl2Cpp]       
         public void Initialize(PingManager.AnimalType type)
         {
+            #if DEBUG
+                MelonLogger.Msg("[MotionTracker].PingComponents.Initialize.205: Initialize pingComponent.name = (" + this.name + ")");
+            #endif
+
             attachedGameObject = this.gameObject;
             animalType = type;
             assignedCategory = PingCategory.Animal;
 
-            if (animalType == PingManager.AnimalType.Arrow)
-            {
-                MelonLogger.Msg("[MotionTracker].PingComponents.Initialize.184: Initialize Arrow pingComponent.name = (" + this.name + ")");
-            }
+            //if (animalType == PingManager.AnimalType.Arrow)
+            //{
+            //    MelonLogger.Msg("[MotionTracker].PingComponents.Initialize.215: Initialize Arrow pingComponent.name = (" + this.name + ")");
+            //    // attachedGearItem = (GearItem)this.gameObject;
+            //    GearItem gi = this.gameObject.AddComponent<GearItem>();
+            //    GearItem gi = this.gameObject.GetComponent<GearItem>();
+            //    if (gi != null)
+            //    {
+            //        MelonLogger.Msg("[MotionTracker].PingComponents.Initialize.221: See GearItem for Arrow name = (" + gi.name + ")");
+            //    }
+            //}
 
             CreateIcon();
 
@@ -224,10 +267,10 @@ namespace MotionTracker
                         // Check if we need to reset the accumulated time
                         if (timer > triggerTime)
                         {
-                            MelonLogger.Msg("[MotionTracker].PingComponents.Update.227: timer = (" + timer + ") which is greater than triggerTime = (" + triggerTime + ")");
-                            MelonLogger.Msg("[MotionTracker].PingComponents.Update.228: GameManager.GetVpFPSPlayer().gameObject.transform.position = (" + GameManager.GetVpFPSPlayer().gameObject.transform.position + ")");
+                            //MelonLogger.Msg("[MotionTracker].PingComponents.Update.263: timer = (" + timer + ") which is greater than triggerTime = (" + triggerTime + ")");
+                            //MelonLogger.Msg("[MotionTracker].PingComponents.Update.264: GameManager.GetVpFPSPlayer().gameObject.transform.position = (" + GameManager.GetVpFPSPlayer().gameObject.transform.position + ")");
                             timer = 0f;
-                            MelonLogger.Msg("[MotionTracker].PingComponents.Update.230: timer reset to 0 (" + timer + ") and triggerTime = (" + triggerTime + ")");
+                            //MelonLogger.Msg("[MotionTracker].PingComponents.Update.266: timer reset to 0 (" + timer + ") and triggerTime = (" + triggerTime + ")");
                         }
                     }
                 }
@@ -238,9 +281,20 @@ namespace MotionTracker
         {
             if (TryGetIconLocation(out var iconLocation))
             {
-                // MelonLogger.Msg("[MotionTracker].PingComponents.UpdateLocatableIcons.228: See something to be updated. (" + this.name + ")");
+                // MelonLogger.Msg("[MotionTracker].PingComponents.UpdateLocatableIcons.277: See something to be updated. (" + this.name + ")");
 
                 SetVisible(true);
+                if (!rectTransform)   // rectTransform is null.  So delete the pingComponent and return.
+                {
+                    ManualDelete(this);
+
+                    #if DEBUG
+                        MelonLogger.Msg("[MotionTracker].PingComponents.UpdateLocatableIcons.281: rectTransform null so ignoring pingComponent.name = (" + this.name + ")");
+                    #endif
+                    
+                    return;
+                }
+
                 rectTransform.anchoredPosition = iconLocation;
 
                 // MelonLogger.Msg("[MotionTracker].PingComponents.UpdateLocatableIcons.233: anchoredPosition = " + rectTransform.anchoredPosition);
@@ -257,7 +311,7 @@ namespace MotionTracker
                 }
                 else if (assignedCategory == PingCategory.Animal)
                 {
-                    // if (iconImage.color != Settings.spraypaintColor || rectTransform.localScale != Settings.spraypaintScale)    // Should this be using animalScale instead of sprayScale?
+                    // if (iconImage.color != Settings.spraypaintColor || rectTransform.localScale != Settings.spraypaintScale)    // CLM: Should this be using animalScale instead of sprayScale?
                     if (iconImage.color != Settings.animalColor || rectTransform.localScale != Settings.animalScale)    // Should this be using animalScale instead of sprayScale?
                     {
                         rectTransform.localScale = Settings.animalScale;
@@ -267,36 +321,19 @@ namespace MotionTracker
                     if (this.name.Contains("Arrow"))
                     {
                         iconImage.color = Color.magenta;    // Make the arrows show up magenta to distinguish from real rabbits.
-
-                        if (timer > triggerTime)
-                        {
-                            MelonLogger.Msg("[MotionTracker].PingComponents.UpdateLocatableIcons.273: Assigned category is Animal.Arrow (" + this.name + ") and anchoredPosition = " + rectTransform.anchoredPosition);
-                        }
-                        // MelonLogger.Msg("[MotionTracker].PingComponents.UpdateLocatableIcons.275: GameManager.GetVpFPSPlayer().gameObject.transform.position = (" + GameManager.GetVpFPSPlayer().gameObject.transform.position + ")");
                     }
 
                     if (this.name.Contains("Cougar"))
                     {
-                        iconImage.color = Color.yellow;
-                        if (timer > triggerTime)
-                        {
-                            MelonLogger.Msg("[MotionTracker].PingComponents.UpdateLocatableIcons.283: Setting visible to TRUE.  Assigned category is Animal.Cougar (" + this.name + ") and anchoredPosition = " + rectTransform.anchoredPosition);
-                        }
+                        iconImage.color = Color.yellow;     // Make the Cougar show up yellow to distinguish from real bears.
                     }
                 }
             }
             else
             {
-                if (this.name.Contains("Arrow"))
-                {
-                    if (timer > triggerTime)
-                    {
-                        MelonLogger.Msg("[MotionTracker].PingComponents.UpdateLocatableIcons.294: Setting visible to FALSE.  Assigned category is Animal.Arrow (" + this.name + ") and anchoredPosition = " + rectTransform.anchoredPosition);
-                    }
-                    // MelonLogger.Msg("[MotionTracker].PingComponents.UpdateLocatableIcons.296: GameManager.GetVpFPSPlayer().gameObject.transform.position = (" + GameManager.GetVpFPSPlayer().gameObject.transform.position + ")");
-                }
-
-                // MelonLogger.Msg("[MotionTracker].PingComponents.UpdateLocatableIcons.299: Setting visible to FALSE.");
+                #if DEBUG
+                    // MelonLogger.Msg("[MotionTracker].PingComponents.UpdateLocatableIcons.335: Setting visible to FALSE.");   // Lot of data!
+                #endif
                 SetVisible(false);
             }
         }
@@ -304,14 +341,6 @@ namespace MotionTracker
         private bool TryGetIconLocation(out Vector2 iconLocation)
         {
             iconLocation = GetDistanceToPlayer(this);
-
-            if (this.name.Contains("Arrow"))
-            {
-                if (timer > triggerTime)
-                {
-                    MelonLogger.Msg("[MotionTracker].PingComponents.TryGetIconLocation.299: Assigned category is Animal.Arrow (" + this.name + ") and distance (iconLocation) = " + iconLocation);
-                }
-            }
 
             float radarSize = GetRadarUISize();
 
@@ -345,13 +374,15 @@ namespace MotionTracker
                 iconLocation = new Vector2(rotatedIconLocation.x, rotatedIconLocation.z);
             }
 
-            if (this.name.Contains("Arrow"))
-            {
-                if (timer > triggerTime)
-                {
-                    MelonLogger.Msg("[MotionTracker].PingComponents.TryGetIconLocation.352: Assigned category is Animal.Arrow (" + this.name + ") and final distance (iconLocation) = " + iconLocation);
-                }
-            }
+            #if DEBUG
+                //if (this.name.Contains("Arrow"))
+                //{
+                    if (timer > triggerTime)
+                    {
+                                // MelonLogger.Msg("[MotionTracker].PingComponents.TryGetIconLocation.382: Assigned category is Animal.Arrow (" + this.name + ") and final distance (iconLocation) = " + iconLocation);  // Lot of data.
+                    }
+                //}
+            #endif
 
             if (iconLocation.sqrMagnitude < radarSize * radarSize || this.clampOnRadar)
             {
@@ -364,7 +395,6 @@ namespace MotionTracker
             return false;
         }
 
-
         private float GetRadarUISize()
         {
             return PingManager.instance.iconContainer.rect.width / 2;
@@ -374,19 +404,17 @@ namespace MotionTracker
         {
             if (GameManager.GetVpFPSPlayer() && locatable)
             {
-                // Debug.Log("(CLM) PingComponent.cs:GetDistanceToPlayer: locatable=", locatable);
-
                 Vector3 distanceToPlayer = locatable.transform.position - GameManager.GetVpFPSPlayer().gameObject.transform.position;
 
-                if (locatable.name.Contains("Arrow"))
-                {
-                    if (timer > triggerTime)
+                #if DEBUG
+                    if (locatable.name.Contains("Arrow"))
                     {
-                        MelonLogger.Msg("[MotionTracker].PingComponents.GetDistanceToPlayer.385: Arrow (" + this.name  + ") position is (" + this.transform.position + ") and distance is " + distanceToPlayer);
+                        if (timer > triggerTime)
+                        {
+                            MelonLogger.Msg("[MotionTracker].PingComponents.GetDistanceToPlayer.396: Arrow (" + this.name + ":" + this.attachedGearItem.m_InstanceID + ") position is (" + this.transform.position + ") and distance is " + distanceToPlayer);
+                        }
                     }
-                }
-
-
+                #endif
                 return new Vector2(distanceToPlayer.x, distanceToPlayer.z);
             }
 

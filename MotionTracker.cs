@@ -26,33 +26,32 @@ namespace MotionTracker
         public static Dictionary<PingManager.AnimalType, GameObject> animalPingPrefabs = new Dictionary<PingManager.AnimalType, GameObject>();
         public static Dictionary<ProjectileType, GameObject> spraypaintPingPrefabs = new Dictionary<ProjectileType, GameObject>();
 
-        // *** CLM - Stuff for capturing player position every waitTime seconds ***
-        // private float waitTime = 10.0f; // This needs to be a parameter controlled in the options menu
-        // private float timer = 0.0f;
-
-        public static GameObject arrow;
+        //public static GameObject arrow;
         // public GameObject player;
-        public Transform arrow2;
+        //public Transform arrow2;
 
         // From https://discussions.unity.com/t/how-to-find-a-child-gameobject-by-name/31255/3
-        public GameObject GetChildGameObject(GameObject fromGameObject, string withName)
-        {
-            var allKids = fromGameObject.GetComponentsInChildren<Transform>();
-            var kid = allKids.FirstOrDefault(k => k.gameObject.name == withName);
-            if (kid == null) return null;
-            return kid.gameObject;
-        }
+        //public GameObject GetChildGameObject(GameObject fromGameObject, string withName)
+        //{
+        //    var allKids = fromGameObject.GetComponentsInChildren<Transform>();
+        //    var kid = allKids.FirstOrDefault(k => k.gameObject.name == withName);
+        //    if (kid == null) return null;
+        //    return kid.gameObject;
+        //}
 
 
-        public void LogMessage(string message, [CallerLineNumber] int lineNumber = 0, [CallerMemberName] string caller = null)
+        public void LogMessage(string message, [CallerLineNumber] int lineNumber = 0, [CallerMemberName] string? caller = null)
         {
-            LoggerInstance.Msg("." + caller + "." + lineNumber + ": " + message);
+            #if DEBUG
+                LoggerInstance.Msg("." + caller + "." + lineNumber + ": " + message);
+            #endif
         }
 
         public override void OnInitializeMelon()
         {
-            // LoggerInstance.Msg("Hello World!"); // CLM
-            LogMessage("Initializing Melon.");
+            #if DEBUG
+                LogMessage("Initializing Melon.");
+            #endif
 
             ClassInjector.RegisterTypeInIl2Cpp<TweenManager>();
             ClassInjector.RegisterTypeInIl2Cpp<PingManager>();
@@ -82,15 +81,19 @@ namespace MotionTracker
                 //SCRIPT_InterfaceManager/_GUI_Common/Camera/Anchor/Panel_OptionsMenu/Pages/ModSettings/GameObject/ScrollPanel/Offset/
 
                 PingManager.inMenu = true;
-                /// Debug.Log("MotionTracker.cs:OnSceneWasLoaded: Contains MainMenu");
-                LogMessage("Scene name containing MainMenu " + sceneName + " was loaded. (1)");
+                
+                #if DEBUG
+                    LogMessage("Scene name containing MainMenu " + sceneName + " was loaded. (1)");
+                #endif
 
                 FirstTimeSetup();
             }
             else if (sceneName.Contains("SANDBOX") && motionTrackerParent)
             {
                 /// Debug.Log("MotionTracker.cs:OnSceneWasLoaded: Contains SANDBOX");
-                LogMessage("Scene name containing SANDBOX " + sceneName + " was loaded. (2)");
+                #if DEBUG
+                    LogMessage("Scene name containing SANDBOX " + sceneName + " was loaded. (2)");
+                #endif
 
                 if (PingManager.instance)
                 {
@@ -100,7 +103,9 @@ namespace MotionTracker
             }
             else
             {
-                LogMessage("Uninteresting scene " + sceneName + " was loaded. (3)");
+                #if DEBUG
+                    LogMessage("Uninteresting scene " + sceneName + " was loaded. (3)");
+                #endif
             }
         }
 
@@ -177,20 +182,6 @@ namespace MotionTracker
 
         public override void OnUpdate()
 		{
-            // If we can, log player position
-            // todo: Need a throttle here.  Time?
-
-            // timer += Time.deltaTime;
-
-            //if (GameManager.GetVpFPSPlayer() && (timer > waitTime))
-            //{
-            //    Vector3 pos = GameManager.GetVpFPSPlayer().transform.position;
-            //    LogMessage($"[{pos.x:F2} / {pos.y:F2} / {pos.z:F2}]");
-
-            //    // Subtracting the waitTime is more accurate over time than resetting to zero.
-            //    timer = timer - waitTime;
-            //}
-
             if (Settings.options.displayStyle == Settings.DisplayStyle.Toggle)
             {
                 if (InputManager.GetKeyDown(InputManager.m_CurrentContext, Settings.options.toggleKey))
