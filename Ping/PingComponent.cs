@@ -72,18 +72,18 @@ namespace MotionTracker
 #if DEBUG
                 if (attachedGearItem)
                 {
-                    MelonLogger.Msg("[MotionTracker].PingComponents.DeleteIcon.74: pingComponent.name:attachedGearItem = (" + name + ":" + attachedGearItem.m_InstanceID + ")");
+                    MelonLogger.Msg("[MotionTracker].PingComponents.DeleteIcon.75: pingComponent.name:attachedGearItem = (" + name + ":" + attachedGearItem.m_InstanceID + ")");
                 }
 
                 if (attachedGameObject)
                 {
-                    MelonLogger.Msg("[MotionTracker].PingComponents.DeleteIcon.79: pingComponent.name:attachedGameObject = (" + name + ":" + attachedGameObject.GetInstanceID() + ")");
+                    MelonLogger.Msg("[MotionTracker].PingComponents.DeleteIcon.80: pingComponent.name:attachedGameObject = (" + name + ":" + attachedGameObject.GetInstanceID() + ")");
                 }
 
                 if (!attachedGameObject && !attachedGearItem)
                 {
 
-                    MelonLogger.Msg("[MotionTracker].PingComponents.DeleteIcon.85: pingComponent.name = (" + this.name + ") attachedGearItem and attachedGameObject are both null!");
+                    MelonLogger.Msg("[MotionTracker].PingComponents.DeleteIcon.86: pingComponent.name = (" + this.name + ") attachedGearItem and attachedGameObject are both null!");
                 }
 #endif
                 GameObject.Destroy(iconObject);
@@ -163,18 +163,18 @@ namespace MotionTracker
 #if DEBUG
                 if (pingComponent.attachedGearItem)
                 {
-                    MelonLogger.Msg("[MotionTracker].PingComponents.ManualDelete.165: pingComponent.name:attachedGearItem = (" + pingComponent.name + ":" + pingComponent.attachedGearItem.m_InstanceID + ")");
+                    MelonLogger.Msg("[MotionTracker].PingComponents.ManualDelete.166: pingComponent.name:attachedGearItem = (" + pingComponent.name + ":" + pingComponent.attachedGearItem.m_InstanceID + ")");
                 }
                 
                 if (pingComponent.attachedGameObject)
                 {
-                    MelonLogger.Msg("[MotionTracker].PingComponents.ManualDelete.170: pingComponent.name:attachedGameObject = (" + pingComponent.name + ":" + pingComponent.attachedGameObject.GetInstanceID() + ")");
+                    MelonLogger.Msg("[MotionTracker].PingComponents.ManualDelete.171: pingComponent.name:attachedGameObject = (" + pingComponent.name + ":" + pingComponent.attachedGameObject.GetInstanceID() + ")");
                 }
 
                 if (!pingComponent.attachedGameObject && !pingComponent.attachedGearItem)
                 {
 
-                    MelonLogger.Msg("[MotionTracker].PingComponents.pingComponent.176: pingComponent.name = (" + pingComponent.name + ") attachedGearItem and attachedGameObject are both null!");
+                    MelonLogger.Msg("[MotionTracker].PingComponents.pingComponent.177: pingComponent.name = (" + pingComponent.name + ") attachedGearItem and attachedGameObject are both null!");
                 }
 #endif
 
@@ -184,7 +184,7 @@ namespace MotionTracker
             else
             {
                 #if DEBUG
-                    MelonLogger.Msg("[MotionTracker].PingComponents.ManualDelete.186: pingComponent is NULL so no delete.");
+                    MelonLogger.Msg("[MotionTracker].PingComponents.ManualDelete.187: pingComponent is NULL so no delete.");
                 #endif
             }
         }
@@ -195,19 +195,22 @@ namespace MotionTracker
 
             if (!canvasGroup)   // canvasGroup is null.  So return.
             {
-                MelonLogger.Msg("[MotionTracker].PingComponents.SetVisible.161: canvasGroup null so not setting visibity (" + visibility + ") for pingComponent.name = (" + this.name + ")");
+                MelonLogger.Msg("[MotionTracker].PingComponents.SetVisible.198: canvasGroup null so not setting visibity (" + visibility + ") for pingComponent.name = (" + this.name + ")");
                 return; 
             }
 
             if (AllowedToShow() && visibility)
             {
+#if DEBUG
+                MelonLogger.Msg("[MotionTracker].PingComponents.SetVisible.204: Setting canvasGroup.alpha = 1f for pingComponent.name = (" + this.name + ":" + this.gameObject.GetInstanceID() + ")");
+#endif
                 try
                 {
                     canvasGroup.alpha = 1f;
                 }
                 catch (Exception e)
                 {
-                    MelonLogger.Msg("[MotionTracker].PingComponents.SetVisible.166: Exception thrown (" + e.Message + ") when setting canvasGroup.alpha = 1f for pingComponent.name = (" + this.name + ")");
+                    MelonLogger.Msg("[MotionTracker].PingComponents.SetVisible.210: Exception thrown (" + e.Message + ") when setting canvasGroup.alpha = 1f for pingComponent.name = (" + this.name + ")");
                     // throw;
                 }
 
@@ -218,20 +221,23 @@ namespace MotionTracker
             }
             else
             {
+#if DEBUG
+                MelonLogger.Msg("[MotionTracker].PingComponents.SetVisible.223: Setting canvasGroup.alpha = 0f for pingComponent.name = (" + this.name + ":" + this.gameObject.GetInstanceID() + ")");
+#endif
                 try
                 {
                     canvasGroup.alpha = 0f;
                 }
                 catch (Exception e)
                 {
-                    MelonLogger.Msg("[MotionTracker].PingComponents.SetVisible.183: Exception thrown (" + e.Message + ") when setting canvasGroup.alpha = 0f for pingComponent.name = (" + this.name + ")");
+                    MelonLogger.Msg("[MotionTracker].PingComponents.SetVisible.227: Exception thrown (" + e.Message + ") when setting canvasGroup.alpha = 0f for pingComponent.name = (" + this.name + ")");
                     // throw;
                 }
 
                 // canvasGroup.alpha = 0f;
                 //if (animalType == PingManager.AnimalType.Arrow)
                 //{
-                    // MelonLogger.Msg("[MotionTracker].PingComponents.SetVisible.170: Setting canvasGroup.alpha = 0f for pingComponent.name = (" + this.name + ")");
+                    // MelonLogger.Msg("[MotionTracker].PingComponents.SetVisible.234: Setting canvasGroup.alpha = 0f for pingComponent.name = (" + this.name + ")");
                 //}
             }
         }
@@ -240,7 +246,7 @@ namespace MotionTracker
         public void Initialize(PingManager.AnimalType type)
         {
             #if DEBUG
-                MelonLogger.Msg("[MotionTracker].PingComponents.Initialize.242: Initialize pingComponent.name = (" + this.name + ":" + this.gameObject.GetInstanceID() + ")");
+                MelonLogger.Msg("[MotionTracker].PingComponents.Initialize.243: Initialize pingComponent.name = (" + this.name + ":" + this.gameObject.GetInstanceID() + ")");
             #endif
 
             attachedGameObject = this.gameObject;
@@ -301,13 +307,13 @@ namespace MotionTracker
 #if DEBUG
                             if (timer > triggerTime)
                             {
-                                MelonLogger.Msg("[MotionTracker].PingComponent.Update.301: (" + this.animalType + ") baseAi.currentmode = (" + baseAi.m_CurrentMode + ")");
+                                MelonLogger.Msg("[MotionTracker].PingComponent.Update.304: (" + this.animalType + ") baseAi.currentmode = (" + baseAi.m_CurrentMode + ")");
                             }
 #endif
                             if (baseAi.m_CurrentMode == AiMode.Dead)
                             {
 #if DEBUG
-                                MelonLogger.Msg("[MotionTracker].PingComponent.Update.307: Deleting pingComponent for (" + this.animalType + ")");
+                                MelonLogger.Msg("[MotionTracker].PingComponent.Update.310: Deleting pingComponent for (" + this.animalType + ")");
 #endif
                                 ManualDelete(this);
                                 return;
@@ -320,10 +326,10 @@ namespace MotionTracker
                         // Check if we need to reset the accumulated time
                         if (timer > triggerTime)
                         {
-                            //MelonLogger.Msg("[MotionTracker].PingComponents.Update.263: timer = (" + timer + ") which is greater than triggerTime = (" + triggerTime + ")");
-                            //MelonLogger.Msg("[MotionTracker].PingComponents.Update.264: GameManager.GetVpFPSPlayer().gameObject.transform.position = (" + GameManager.GetVpFPSPlayer().gameObject.transform.position + ")");
+                            //MelonLogger.Msg("[MotionTracker].PingComponents.Update.323: timer = (" + timer + ") which is greater than triggerTime = (" + triggerTime + ")");
+                            //MelonLogger.Msg("[MotionTracker].PingComponents.Update.324: GameManager.GetVpFPSPlayer().gameObject.transform.position = (" + GameManager.GetVpFPSPlayer().gameObject.transform.position + ")");
                             timer = 0f;
-                            //MelonLogger.Msg("[MotionTracker].PingComponents.Update.266: timer reset to 0 (" + timer + ") and triggerTime = (" + triggerTime + ")");
+                            //MelonLogger.Msg("[MotionTracker].PingComponents.Update.326: timer reset to 0 (" + timer + ") and triggerTime = (" + triggerTime + ")");
                         }
                     }
                 }
@@ -334,7 +340,7 @@ namespace MotionTracker
         {
             if (TryGetIconLocation(out var iconLocation))
             {
-                // MelonLogger.Msg("[MotionTracker].PingComponents.UpdateLocatableIcons.277: See something to be updated. (" + this.name + ")");
+                // MelonLogger.Msg("[MotionTracker].PingComponents.UpdateLocatableIcons.337: See something to be updated. (" + this.name + ")");
 
                 SetVisible(true);
                 if (!rectTransform)   // rectTransform is null.  So delete the pingComponent and return.
@@ -342,7 +348,7 @@ namespace MotionTracker
                     ManualDelete(this);
 
                     #if DEBUG
-                        MelonLogger.Msg("[MotionTracker].PingComponents.UpdateLocatableIcons.281: rectTransform null so ignoring pingComponent.name = (" + this.name + ")");
+                        MelonLogger.Msg("[MotionTracker].PingComponents.UpdateLocatableIcons.345: rectTransform null so ignoring pingComponent.name = (" + this.name + ")");
                     #endif
                     
                     return;
@@ -350,11 +356,11 @@ namespace MotionTracker
 
                 rectTransform.anchoredPosition = iconLocation;
 
-                // MelonLogger.Msg("[MotionTracker].PingComponents.UpdateLocatableIcons.233: anchoredPosition = " + rectTransform.anchoredPosition);
+                // MelonLogger.Msg("[MotionTracker].PingComponents.UpdateLocatableIcons.353: anchoredPosition = " + rectTransform.anchoredPosition);
 
                 if (assignedCategory == PingCategory.Spraypaint)
                 {
-                    // MelonLogger.Msg("[MotionTracker].PingComponents.UpdateLocatableIcons.237: Assigned category is Spraypaint = " + assignedCategory);
+                    // MelonLogger.Msg("[MotionTracker].PingComponents.UpdateLocatableIcons.357: Assigned category is Spraypaint = " + assignedCategory);
 
                     if (iconImage.color != Settings.spraypaintColor || rectTransform.localScale != Settings.spraypaintScale)
                     {
@@ -387,11 +393,11 @@ namespace MotionTracker
 
                         if (name.Contains("Arrow"))
                         {
-                            MelonLogger.Msg("[MotionTracker].PingComponents.UpdateLocatableIcons.368: Radar Arrow updating (" + this.name + ":" + this.attachedGearItem.m_InstanceID + ") position is (" + this.transform.position + ")");
+                            MelonLogger.Msg("[MotionTracker].PingComponents.UpdateLocatableIcons.390: Radar Arrow updating (" + this.name + ":" + this.attachedGearItem.m_InstanceID + ") position is (" + this.transform.position + ")");
                         }
                         else if (assignedCategory == PingCategory.Animal)
                         {
-                            MelonLogger.Msg("[MotionTracker].PingComponents.UpdateLocatableIcons.372: Radar Animal updating (" + this.name + ":" + this.attachedGameObject.GetInstanceID() + ") position is (" + this.transform.position + ")");
+                            MelonLogger.Msg("[MotionTracker].PingComponents.UpdateLocatableIcons.394: Radar Animal updating (" + this.name + ":" + this.attachedGameObject.GetInstanceID() + ") position is (" + this.transform.position + ")");
                         }
                         else if (name.Contains("DecalContainer")) // SprayPaint Decal
                         {
@@ -399,7 +405,7 @@ namespace MotionTracker
                         }
                         else
                         {
-                            MelonLogger.Msg("[MotionTracker].PingComponents.UpdateLocatableIcons.380: Radar ??? updating (" + this.name + ":" + this.attachedGameObject.GetInstanceID() + ") position is (" + this.transform.position + ")");
+                            MelonLogger.Msg("[MotionTracker].PingComponents.UpdateLocatableIcons.402: Radar ??? updating (" + this.name + ":" + this.attachedGameObject.GetInstanceID() + ") position is (" + this.transform.position + ")");
                         }
                     }
 #endif
@@ -490,19 +496,19 @@ namespace MotionTracker
 
                     if (locatable.name.Contains("Arrow"))
                     {
-                        MelonLogger.Msg("[MotionTracker].PingComponents.GetDistanceToPlayer.471: Arrow (" + this.name + ":" + this.attachedGearItem.m_InstanceID + ") position is (" + this.transform.position + ") and distance is " + distanceToPlayer);
+                        MelonLogger.Msg("[MotionTracker].PingComponents.GetDistanceToPlayer.493: Arrow (" + this.name + ":" + this.attachedGearItem.m_InstanceID + ") position is (" + this.transform.position + ") and distance is " + distanceToPlayer);
                     }
                     else if (assignedCategory == PingCategory.Animal)
                     {
-                        MelonLogger.Msg("[MotionTracker].PingComponents.GetDistanceToPlayer.475: Animal (" + this.name + ":" + this.attachedGameObject.GetInstanceID() + ") position is (" + this.transform.position + ") and distance is " + distanceToPlayer);
+                        MelonLogger.Msg("[MotionTracker].PingComponents.GetDistanceToPlayer.497: Animal (" + this.name + ":" + this.attachedGameObject.GetInstanceID() + ") position is (" + this.transform.position + ") and distance is " + distanceToPlayer);
                     }
                     else if (locatable.name.Contains("DecalContainer")) // SprayPaint Decal
                     {
-                        // MelonLogger.Msg("[MotionTracker].PingComponents.GetDistanceToPlayer.479: DecalContainer (" + this.name + ":" + this.attachedGameObject.GetInstanceID() + ") position is (" + this.transform.position + ") and distance is " + distanceToPlayer);
+                        // MelonLogger.Msg("[MotionTracker].PingComponents.GetDistanceToPlayer.501: DecalContainer (" + this.name + ":" + this.attachedGameObject.GetInstanceID() + ") position is (" + this.transform.position + ") and distance is " + distanceToPlayer);
                     }
                     else
                     {
-                        MelonLogger.Msg("[MotionTracker].PingComponents.GetDistanceToPlayer.483: ??? (" + this.name + ":" + this.attachedGameObject.GetInstanceID() + ") position is (" + this.transform.position + ") and distance is " + distanceToPlayer);
+                        MelonLogger.Msg("[MotionTracker].PingComponents.GetDistanceToPlayer.505: ??? (" + this.name + ":" + this.attachedGameObject.GetInstanceID() + ") position is (" + this.transform.position + ") and distance is " + distanceToPlayer);
                     }
                 }
 #endif

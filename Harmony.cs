@@ -103,7 +103,7 @@ namespace MotionTracker
             if (__instance.gameObject.name.Contains("Arrow"))
             {
                 #if DEBUG
-                    MelonLogger.Msg("[MotionTracker].Harmony.GearItemCacheComponentsPatch.Postfix.74  (" + __instance.DisplayName + ":" + __instance.m_InstanceID +
+                    MelonLogger.Msg("[MotionTracker].Harmony.GearItemCacheComponentsPatch.Postfix.106  (" + __instance.DisplayName + ":" + __instance.m_InstanceID +
                         ") Inventory=" + __instance.m_InsideContainer + ", Container=" + __instance.m_InPlayerInventory + ") CacheComponents event.");
                 #endif
             }
@@ -178,7 +178,7 @@ namespace MotionTracker
                     {
                         // Arrow is not in inventory or container and does not have a PingComponent
                         #if DEBUG
-                            MelonLogger.Msg("[MotionTracker].Harmony.GearItemManualUpdatePatch.Postfix.143  See some kind of Arrow (" + __instance.DisplayName + ":" + __instance.m_InstanceID + ") and adding PingComponent to object.");
+                            MelonLogger.Msg("[MotionTracker].Harmony.GearItemManualUpdatePatch.Postfix.181  See some kind of Arrow (" + __instance.DisplayName + ":" + __instance.m_InstanceID + ") and adding PingComponent to object.");
                         #endif
 
                         __instance.gameObject.AddComponent<PingComponent>().Initialize(PingManager.AnimalType.Arrow);   // Add the PingComponent for the arrow
@@ -200,7 +200,7 @@ namespace MotionTracker
             if (__instance.gameObject.GetComponent<PingComponent>())
             {
                 #if DEBUG
-                    MelonLogger.Msg("[MotionTracker].Harmony.GearItemDestroyPatch.Postfix.165  (" + __instance.DisplayName + ":" + __instance.m_InstanceID + ") OnDestroy event.");
+                    MelonLogger.Msg("[MotionTracker].Harmony.GearItemDestroyPatch.Postfix.203  (" + __instance.DisplayName + ":" + __instance.m_InstanceID + ") OnDestroy event.");
                 #endif
 
                 PingComponent.ManualDelete(__instance.gameObject.GetComponent<PingComponent>());
@@ -218,13 +218,13 @@ namespace MotionTracker
         public static void Postfix(ref BaseAi __instance)
         {
 #if DEBUG
-            MelonLogger.Msg("[MotionTracker].Harmony.AiAwakePatch.Postfix.220  (" + __instance.name + ":" + __instance.GetInstanceID() + ") BaseAI Start event.");
+            MelonLogger.Msg("[MotionTracker].Harmony.AiAwakePatch.Postfix.221  (" + __instance.name + ":" + __instance.GetInstanceID() + ") BaseAI Start event.");
 #endif
 
             if (__instance.m_CurrentMode == AiMode.Dead || __instance.m_CurrentMode == AiMode.Disabled || __instance.m_CurrentMode == AiMode.None)
             {
 #if DEBUG
-                MelonLogger.Msg("[MotionTracker].Harmony.AiAwakePatch.Postfix.226  (" + __instance.name + ":" + __instance.GetInstanceID() + ") AiMode dead, disabled, or none.  No processing.");
+                MelonLogger.Msg("[MotionTracker].Harmony.AiAwakePatch.Postfix.227  (" + __instance.name + ":" + __instance.GetInstanceID() + ") AiMode dead, disabled, or none.  No processing.");
 #endif
                 return;
             }
@@ -293,7 +293,7 @@ namespace MotionTracker
         {
             __instance.gameObject.AddComponent<PingComponent>().Initialize(PingManager.AnimalType.Crow);
 #if DEBUG
-            MelonLogger.Msg("[MotionTracker].Harmony.FlockPatch.Postfix.294  (" + __instance.name + ":" + __instance.GetInstanceID() + ") FlockChild Start event.");
+            MelonLogger.Msg("[MotionTracker].Harmony.FlockPatch.Postfix.296  (" + __instance.name + ":" + __instance.GetInstanceID() + ") FlockChild Start event.");
 #endif
         }
     }
@@ -321,7 +321,7 @@ namespace MotionTracker
         {
             __instance.gameObject.AddComponent<PingComponent>().Initialize(PingManager.AnimalType.Crow);
 #if DEBUG
-            MelonLogger.Msg("[MotionTracker].Harmony.FlockController_Start_Patch.Postfix.319  (" + __instance.name + ":" + __instance.GetInstanceID() + ") FlockController Start event.");
+            MelonLogger.Msg("[MotionTracker].Harmony.FlockController_Start_Patch.Postfix.324  (" + __instance.name + ":" + __instance.GetInstanceID() + ") FlockController Start event.");
 #endif
         }
     }
