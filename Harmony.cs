@@ -316,6 +316,7 @@ namespace MotionTracker
     public class FlockController_Start_Patch
     {
         // public static void Postfix(ref BaseAi __instance)
+        // public unsafe virtual void
         public static void Postfix(ref FlockController __instance)
         {
             __instance.gameObject.AddComponent<PingComponent>().Initialize(PingManager.AnimalType.Crow);
@@ -345,9 +346,11 @@ namespace MotionTracker
         public static void Postfix(ref FlockController __instance)
         {
             //__instance.gameObject.AddComponent<PingComponent>().Initialize(PingManager.AnimalType.Crow);
+
 #if DEBUG
-            MelonLogger.Msg("[MotionTracker].Harmony.FlockController_destroyBirds_Patch.Postfix.343  (" + __instance.name + ":" + __instance.GetInstanceID() + ") FlockController destroyBirds event.");
+            MelonLogger.Msg("[MotionTracker].Harmony.FlockController_destroyBirds_Patch.Postfix.351  (" + __instance.name + ":" + __instance.GetInstanceID() + ") FlockController destroyBirds event.");
 #endif
+            PingComponent.ManualDelete(__instance.gameObject.GetComponent<PingComponent>());
         }
     }
 
@@ -359,7 +362,7 @@ namespace MotionTracker
         {
             //__instance.gameObject.AddComponent<PingComponent>().Initialize(PingManager.AnimalType.Crow);
 #if DEBUG
-            MelonLogger.Msg("[MotionTracker].Harmony.FlockSystem_Collections_IEnumerator_ResetPatch.Postfix.355  (" + __instance.name + ":" + __instance.GetInstanceID() + ") FlockController OnDrawGizmos event.");
+            MelonLogger.Msg("[MotionTracker].Harmony.FlockSystem_Collections_IEnumerator_ResetPatch.Postfix.365  (" + __instance.name + ":" + __instance.GetInstanceID() + ") FlockController OnDrawGizmos event.");
 #endif
 
         }
@@ -372,7 +375,7 @@ namespace MotionTracker
         public static void Postfix(ref BaseAi __instance)
         {
 #if DEBUG
-            MelonLogger.Msg("[MotionTracker].Harmony.DeathPatch.Postfix.319  (" + __instance.name + ":" + __instance.GetInstanceID() + ") BaseAi EnterDead event.");
+            MelonLogger.Msg("[MotionTracker].Harmony.DeathPatch.Postfix.378  (" + __instance.name + ":" + __instance.GetInstanceID() + ") BaseAi EnterDead event.");
 #endif
             PingComponent.ManualDelete(__instance.gameObject.GetComponent<PingComponent>());           
         }
@@ -384,7 +387,7 @@ namespace MotionTracker
         public static void Postfix(ref BaseAi __instance)
         {
 #if DEBUG
-            MelonLogger.Msg("[MotionTracker].Harmony.DeathPatch2.Postfix.331  (" + __instance.name + ":" + __instance.GetInstanceID() + ") BaseAi OnDisable event.");
+            MelonLogger.Msg("[MotionTracker].Harmony.DeathPatch2.Postfix.390  (" + __instance.name + ":" + __instance.GetInstanceID() + ") BaseAi OnDisable event.");
 #endif
             PingComponent.ManualDelete(__instance.gameObject.GetComponent<PingComponent>());
         }
@@ -398,7 +401,7 @@ namespace MotionTracker
         {
             // PingComponent.ManualDelete(__instance.gameObject.GetComponent<PingComponent>());
 #if DEBUG
-            MelonLogger.Msg("[MotionTracker].Harmony.DeathPatch3.Postfix.345  (" + __instance.name + ":" + __instance.GetInstanceID() + ") BaseAi Despawn event.");
+            MelonLogger.Msg("[MotionTracker].Harmony.DeathPatch3.Postfix.404  (" + __instance.name + ":" + __instance.GetInstanceID() + ") BaseAi Despawn event.");
 #endif
         }
     }
@@ -409,7 +412,7 @@ namespace MotionTracker
         public static void Postfix(ref BaseAi __instance)
         {
 #if DEBUG
-            // MelonLogger.Msg("[MotionTracker].Harmony.ProcessDeadPatch.Postfix.356  (" + __instance.name + ":" + __instance.GetInstanceID() + ") BaseAi ProcessDead event.");    // Lot of data!
+            // MelonLogger.Msg("[MotionTracker].Harmony.ProcessDeadPatch.Postfix.415  (" + __instance.name + ":" + __instance.GetInstanceID() + ") BaseAi ProcessDead event.");    // Lot of data!
 #endif
             // PingComponent.ManualDelete(__instance.gameObject.GetComponent<PingComponent>());
         }
@@ -421,7 +424,7 @@ namespace MotionTracker
         public static void Postfix(ref BaseAi __instance)
         {
 #if DEBUG
-            MelonLogger.Msg("[MotionTracker].Harmony.ExitDeadPatch.Postfix.368  (" + __instance.name + ":" + __instance.GetInstanceID() + ") BaseAi ExitDead event.");
+            MelonLogger.Msg("[MotionTracker].Harmony.ExitDeadPatch.Postfix.427  (" + __instance.name + ":" + __instance.GetInstanceID() + ") BaseAi ExitDead event.");
 #endif
             // PingComponent.ManualDelete(__instance.gameObject.GetComponent<PingComponent>());
         }
