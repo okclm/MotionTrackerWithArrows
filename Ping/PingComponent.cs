@@ -36,6 +36,7 @@ namespace MotionTracker
 
         public RectTransform rectTransform;
         public bool clampOnRadar = false;
+        // public bool clampOnRadar = true;
         public static GameObject playerObject;
 
 
@@ -68,6 +69,23 @@ namespace MotionTracker
         {
             if (iconObject)
             {
+#if DEBUG
+                if (attachedGearItem)
+                {
+                    MelonLogger.Msg("[MotionTracker].PingComponents.DeleteIcon.74: pingComponent.name:attachedGearItem = (" + name + ":" + attachedGearItem.m_InstanceID + ")");
+                }
+
+                if (attachedGameObject)
+                {
+                    MelonLogger.Msg("[MotionTracker].PingComponents.DeleteIcon.79: pingComponent.name:attachedGameObject = (" + name + ":" + attachedGameObject.GetInstanceID() + ")");
+                }
+
+                if (!attachedGameObject && !attachedGearItem)
+                {
+
+                    MelonLogger.Msg("[MotionTracker].PingComponents.DeleteIcon.85: pingComponent.name = (" + this.name + ") attachedGearItem and attachedGameObject are both null!");
+                }
+#endif
                 GameObject.Destroy(iconObject);
             }
         }
@@ -142,9 +160,23 @@ namespace MotionTracker
         {
             if (pingComponent != null)
             {
-                #if DEBUG
-                    MelonLogger.Msg("[MotionTracker].PingComponents.ManualDelete.146: pingComponent.name = (" + pingComponent.name + ")");
-                #endif
+#if DEBUG
+                if (pingComponent.attachedGearItem)
+                {
+                    MelonLogger.Msg("[MotionTracker].PingComponents.ManualDelete.165: pingComponent.name:attachedGearItem = (" + pingComponent.name + ":" + pingComponent.attachedGearItem.m_InstanceID + ")");
+                }
+                
+                if (pingComponent.attachedGameObject)
+                {
+                    MelonLogger.Msg("[MotionTracker].PingComponents.ManualDelete.170: pingComponent.name:attachedGameObject = (" + pingComponent.name + ":" + pingComponent.attachedGameObject.GetInstanceID() + ")");
+                }
+
+                if (!pingComponent.attachedGameObject && !pingComponent.attachedGearItem)
+                {
+
+                    MelonLogger.Msg("[MotionTracker].PingComponents.pingComponent.176: pingComponent.name = (" + pingComponent.name + ") attachedGearItem and attachedGameObject are both null!");
+                }
+#endif
 
                 pingComponent.DeleteIcon();
                 GameObject.Destroy(pingComponent);
@@ -152,7 +184,7 @@ namespace MotionTracker
             else
             {
                 #if DEBUG
-                    MelonLogger.Msg("[MotionTracker].PingComponents.ManualDelete.151: pingComponent is NULL so no delete.");
+                    MelonLogger.Msg("[MotionTracker].PingComponents.ManualDelete.186: pingComponent is NULL so no delete.");
                 #endif
             }
         }
@@ -208,7 +240,7 @@ namespace MotionTracker
         public void Initialize(PingManager.AnimalType type)
         {
             #if DEBUG
-                MelonLogger.Msg("[MotionTracker].PingComponents.Initialize.205: Initialize pingComponent.name = (" + this.name + ")");
+                MelonLogger.Msg("[MotionTracker].PingComponents.Initialize.242: Initialize pingComponent.name = (" + this.name + ":" + this.gameObject.GetInstanceID() + ")");
             #endif
 
             attachedGameObject = this.gameObject;
@@ -251,7 +283,6 @@ namespace MotionTracker
             DeleteIcon();
         }
 
-       
         public void Update()
         {
             if (Settings.options.enableMotionTracker && PingManager.isVisible)
@@ -261,6 +292,28 @@ namespace MotionTracker
                     if (GameManager.GetVpFPSPlayer() != null)
                     {
                         timer += Time.deltaTime;    // Accumulated time since we last logged stuff
+
+                        // begin: From the Illusion on Discord.  How to address stuff displaying on radar that aren't there.
+                        // https://discord.com/channels/322211727192358914/734738909078093894/1293654251733520446
+                        BaseAi baseAi = gameObject.GetComponent<BaseAi>();
+                        if (baseAi != null)
+                        {
+#if DEBUG
+                            if (timer > triggerTime)
+                            {
+                                MelonLogger.Msg("[MotionTracker].PingComponent.Update.301: (" + this.animalType + ") baseAi.currentmode = (" + baseAi.m_CurrentMode + ")");
+                            }
+#endif
+                            if (baseAi.m_CurrentMode == AiMode.Dead)
+                            {
+#if DEBUG
+                                MelonLogger.Msg("[MotionTracker].PingComponent.Update.307: Deleting pingComponent for (" + this.animalType + ")");
+#endif
+                                ManualDelete(this);
+                                return;
+                            }
+                        // end: From the Illusion on Discord.  How to address stuff displaying on radar that aren't there.
+                        }
 
                         UpdateLocatableIcons();
 
@@ -327,12 +380,37 @@ namespace MotionTracker
                     {
                         iconImage.color = Color.yellow;     // Make the Cougar show up yellow to distinguish from real bears.
                     }
+
+#if DEBUG
+                    if (timer > triggerTime)
+                    {
+
+                        if (name.Contains("Arrow"))
+                        {
+                            MelonLogger.Msg("[MotionTracker].PingComponents.UpdateLocatableIcons.368: Radar Arrow updating (" + this.name + ":" + this.attachedGearItem.m_InstanceID + ") position is (" + this.transform.position + ")");
+                        }
+                        else if (assignedCategory == PingCategory.Animal)
+                        {
+                            MelonLogger.Msg("[MotionTracker].PingComponents.UpdateLocatableIcons.372: Radar Animal updating (" + this.name + ":" + this.attachedGameObject.GetInstanceID() + ") position is (" + this.transform.position + ")");
+                        }
+                        else if (name.Contains("DecalContainer")) // SprayPaint Decal
+                        {
+                             // MelonLogger.Msg("[MotionTracker].PingComponents.UpdateLocatableIcons.376: Radar DecalContainer updating (" + this.name + ":" + this.attachedGameObject.GetInstanceID() + ") position is (" + this.transform.position + ")");
+                        }
+                        else
+                        {
+                            MelonLogger.Msg("[MotionTracker].PingComponents.UpdateLocatableIcons.380: Radar ??? updating (" + this.name + ":" + this.attachedGameObject.GetInstanceID() + ") position is (" + this.transform.position + ")");
+                        }
+                    }
+#endif
+
+
                 }
             }
             else
             {
                 #if DEBUG
-                    // MelonLogger.Msg("[MotionTracker].PingComponents.UpdateLocatableIcons.335: Setting visible to FALSE.");   // Lot of data!
+                    // MelonLogger.Msg("[MotionTracker].PingComponents.UpdateLocatableIcons.391: Setting visible to FALSE.");   // Lot of data!
                 #endif
                 SetVisible(false);
             }
@@ -359,7 +437,7 @@ namespace MotionTracker
                     playerForwardDirectionXZ = Vector3.ProjectOnPlane(GameManager.GetVpFPSPlayer().gameObject.transform.forward, Vector3.up);
                 }
 
-                // Create a roation from the direction
+                // Create a rotation from the direction
                 var rotation = Quaternion.LookRotation(playerForwardDirectionXZ);
 
                 // Mirror y rotation
@@ -379,7 +457,7 @@ namespace MotionTracker
                 //{
                     if (timer > triggerTime)
                     {
-                                // MelonLogger.Msg("[MotionTracker].PingComponents.TryGetIconLocation.382: Assigned category is Animal.Arrow (" + this.name + ") and final distance (iconLocation) = " + iconLocation);  // Lot of data.
+                                // MelonLogger.Msg("[MotionTracker].PingComponents.TryGetIconLocation.438: Assigned category is Animal.Arrow (" + this.name + ") and final distance (iconLocation) = " + iconLocation);  // Lot of data.
                     }
                 //}
             #endif
@@ -406,15 +484,28 @@ namespace MotionTracker
             {
                 Vector3 distanceToPlayer = locatable.transform.position - GameManager.GetVpFPSPlayer().gameObject.transform.position;
 
-                #if DEBUG
+#if DEBUG
+                if (timer > triggerTime)
+                {
+
                     if (locatable.name.Contains("Arrow"))
                     {
-                        if (timer > triggerTime)
-                        {
-                            MelonLogger.Msg("[MotionTracker].PingComponents.GetDistanceToPlayer.396: Arrow (" + this.name + ":" + this.attachedGearItem.m_InstanceID + ") position is (" + this.transform.position + ") and distance is " + distanceToPlayer);
-                        }
+                        MelonLogger.Msg("[MotionTracker].PingComponents.GetDistanceToPlayer.471: Arrow (" + this.name + ":" + this.attachedGearItem.m_InstanceID + ") position is (" + this.transform.position + ") and distance is " + distanceToPlayer);
                     }
-                #endif
+                    else if (assignedCategory == PingCategory.Animal)
+                    {
+                        MelonLogger.Msg("[MotionTracker].PingComponents.GetDistanceToPlayer.475: Animal (" + this.name + ":" + this.attachedGameObject.GetInstanceID() + ") position is (" + this.transform.position + ") and distance is " + distanceToPlayer);
+                    }
+                    else if (locatable.name.Contains("DecalContainer")) // SprayPaint Decal
+                    {
+                        // MelonLogger.Msg("[MotionTracker].PingComponents.GetDistanceToPlayer.479: DecalContainer (" + this.name + ":" + this.attachedGameObject.GetInstanceID() + ") position is (" + this.transform.position + ") and distance is " + distanceToPlayer);
+                    }
+                    else
+                    {
+                        MelonLogger.Msg("[MotionTracker].PingComponents.GetDistanceToPlayer.483: ??? (" + this.name + ":" + this.attachedGameObject.GetInstanceID() + ") position is (" + this.transform.position + ") and distance is " + distanceToPlayer);
+                    }
+                }
+#endif
                 return new Vector2(distanceToPlayer.x, distanceToPlayer.z);
             }
 

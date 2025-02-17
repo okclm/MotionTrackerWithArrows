@@ -28,7 +28,6 @@ namespace MotionTracker
 
         public bool applyRotation = true;
         public static bool inMenu = false;
-       
 
         public void ClearIcons()
         {
@@ -39,7 +38,9 @@ namespace MotionTracker
                 Destroy(icon.gameObject);
             }
             /// Debug.Log("PingManager.cs:ClearIcons: Cleared Icons");
-
+#if DEBUG
+            MelonLogger.Msg("[MotionTracker].PingManager.ClearIcons.43  Cleared Icons.");
+#endif
         }
 
         public void Update()
@@ -97,7 +98,6 @@ namespace MotionTracker
                 return false;
             }
 
-
             if (Settings.options.onlyOutdoors)
             {
                 if(GameManager.GetWeatherComponent().IsIndoorEnvironment())
@@ -105,7 +105,6 @@ namespace MotionTracker
                     return false; 
                 }
             }
-
           
             return true;
         }

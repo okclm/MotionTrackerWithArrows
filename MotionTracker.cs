@@ -97,6 +97,9 @@ namespace MotionTracker
 
                 if (PingManager.instance)
                 {
+#if DEBUG
+                    MelonLogger.Msg("[MotionTracker].MotionTracker.OnSceneWasLoaded.101 Scene name containing SANDBOX " + sceneName + " was loaded.");
+#endif
                     PingManager.instance.ClearIcons();
                     PingManager.inMenu = false;
                 }

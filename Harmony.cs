@@ -110,6 +110,12 @@ namespace MotionTracker
         }
     }
 
+    // We are relying on the ManualUpdate event to catch GearItems needing to be tracked or not (instantiate a pingComponent or delete an exiting pingComponent.
+    // In testing, sometimes an Arrow on the radar becomes "stuck" at the origin (center) that never updates.
+    // Hypothesis: This happens after picking up an Arrow from the ground.  It goes into inventory (Arrow GearItem object is deleted) but
+    // the associated radar icon is not deleted.  Suspect pingComponent does not exist.  But the radar is not cleared of the arrow that was picked up and went into
+    // inventory.
+
     [HarmonyLib.HarmonyPatch(typeof(GearItem), "ManualUpdate")]
     public class GearItemManualUpdatePatch
     {
@@ -211,8 +217,15 @@ namespace MotionTracker
     {
         public static void Postfix(ref BaseAi __instance)
         {
+#if DEBUG
+            MelonLogger.Msg("[MotionTracker].Harmony.AiAwakePatch.Postfix.220  (" + __instance.name + ":" + __instance.GetInstanceID() + ") BaseAI Start event.");
+#endif
+
             if (__instance.m_CurrentMode == AiMode.Dead || __instance.m_CurrentMode == AiMode.Disabled || __instance.m_CurrentMode == AiMode.None)
             {
+#if DEBUG
+                MelonLogger.Msg("[MotionTracker].Harmony.AiAwakePatch.Postfix.226  (" + __instance.name + ":" + __instance.GetInstanceID() + ") AiMode dead, disabled, or none.  No processing.");
+#endif
                 return;
             }
 
@@ -268,12 +281,87 @@ namespace MotionTracker
         }
     }
 
+    // Crows.  They show up on the radar as expected.  But, sometimes the radar animation for crows stops.  Go into a trailer with active crows on the radar
+    // and sometimes the radar crow updates stops.  They should be removed from the radar since there are no crows in the trailer.
+    // Also, have active crows on the radar.  Pass time until night.  The crows go away when it's dark.  But the radar shows the non-updating
+    // crow artifacts.  UE shows no pingComponents after crows despawn at night.  So, need to figure out how the radar is cleared up when an item despawns.
     [HarmonyLib.HarmonyPatch(typeof(Il2Cpp.FlockChild), "Start")]
     public class FlockPatch
     {
-        public static void Postfix(ref BaseAi __instance)
+        // public static void Postfix(ref BaseAi __instance)
+        public static void Postfix(ref FlockChild __instance)
         {
             __instance.gameObject.AddComponent<PingComponent>().Initialize(PingManager.AnimalType.Crow);
+#if DEBUG
+            MelonLogger.Msg("[MotionTracker].Harmony.FlockPatch.Postfix.294  (" + __instance.name + ":" + __instance.GetInstanceID() + ") FlockChild Start event.");
+#endif
+        }
+    }
+
+    [HarmonyLib.HarmonyPatch(typeof(Il2Cpp.FlockChild), "Update")]
+    public class FlockUpdatePatch
+    {
+        // public static void Postfix(ref BaseAi __instance)
+        public static void Postfix(ref FlockChild __instance)
+        {
+            //__instance.gameObject.AddComponent<PingComponent>().Initialize(PingManager.AnimalType.Crow);
+#if DEBUG
+            // MelonLogger.Msg("[MotionTracker].Harmony.FlockUpdatePatch.Postfix.306  (" + __instance.name + ":" + __instance.GetInstanceID() + ") FlockChild Update event.");  // Lot of data!
+#endif
+
+        }
+    }
+
+    [HarmonyLib.HarmonyPatch(typeof(Il2Cpp.FlockController), "Start")]
+    public class FlockController_Start_Patch
+    {
+        // public static void Postfix(ref BaseAi __instance)
+        public static void Postfix(ref FlockController __instance)
+        {
+            __instance.gameObject.AddComponent<PingComponent>().Initialize(PingManager.AnimalType.Crow);
+#if DEBUG
+            MelonLogger.Msg("[MotionTracker].Harmony.FlockController_Start_Patch.Postfix.319  (" + __instance.name + ":" + __instance.GetInstanceID() + ") FlockController Start event.");
+#endif
+        }
+    }
+
+    [HarmonyLib.HarmonyPatch(typeof(Il2Cpp.FlockController), "Update")]
+    public class FlockController_Update_Patch
+    {
+        // public static void Postfix(ref BaseAi __instance)
+        public static void Postfix(ref FlockController __instance)
+        {
+            //__instance.gameObject.AddComponent<PingComponent>().Initialize(PingManager.AnimalType.Crow);
+#if DEBUG
+            // MelonLogger.Msg("[MotionTracker].Harmony.FlockController_Update_Patch.Postfix.331  (" + __instance.name + ":" + __instance.GetInstanceID() + ") FlockController Update event.");
+#endif
+        }
+    }
+
+    [HarmonyLib.HarmonyPatch(typeof(Il2Cpp.FlockController), "destroyBirds")]
+    public class FlockController_destroyBirds_Patch
+    {
+        // public static void Postfix(ref BaseAi __instance)
+        public static void Postfix(ref FlockController __instance)
+        {
+            //__instance.gameObject.AddComponent<PingComponent>().Initialize(PingManager.AnimalType.Crow);
+#if DEBUG
+            MelonLogger.Msg("[MotionTracker].Harmony.FlockController_destroyBirds_Patch.Postfix.343  (" + __instance.name + ":" + __instance.GetInstanceID() + ") FlockController destroyBirds event.");
+#endif
+        }
+    }
+
+    [HarmonyLib.HarmonyPatch(typeof(Il2Cpp.FlockController), "OnDrawGizmos")]
+    public class FlockController_OnDrawGizmos_Patch
+    {
+        // public static void Postfix(ref BaseAi __instance)
+        public static void Postfix(ref FlockController __instance)
+        {
+            //__instance.gameObject.AddComponent<PingComponent>().Initialize(PingManager.AnimalType.Crow);
+#if DEBUG
+            MelonLogger.Msg("[MotionTracker].Harmony.FlockSystem_Collections_IEnumerator_ResetPatch.Postfix.355  (" + __instance.name + ":" + __instance.GetInstanceID() + ") FlockController OnDrawGizmos event.");
+#endif
+
         }
     }
 
@@ -283,6 +371,9 @@ namespace MotionTracker
     {
         public static void Postfix(ref BaseAi __instance)
         {
+#if DEBUG
+            MelonLogger.Msg("[MotionTracker].Harmony.DeathPatch.Postfix.319  (" + __instance.name + ":" + __instance.GetInstanceID() + ") BaseAi EnterDead event.");
+#endif
             PingComponent.ManualDelete(__instance.gameObject.GetComponent<PingComponent>());           
         }
     }
@@ -292,9 +383,50 @@ namespace MotionTracker
     {
         public static void Postfix(ref BaseAi __instance)
         {
+#if DEBUG
+            MelonLogger.Msg("[MotionTracker].Harmony.DeathPatch2.Postfix.331  (" + __instance.name + ":" + __instance.GetInstanceID() + ") BaseAi OnDisable event.");
+#endif
             PingComponent.ManualDelete(__instance.gameObject.GetComponent<PingComponent>());
         }
     }
+
+    // Despawn not seen yet.  
+    [HarmonyLib.HarmonyPatch(typeof(BaseAi), "Despawn")]
+    public class DeathPatch3
+    {
+        public static void Postfix(ref BaseAi __instance)
+        {
+            // PingComponent.ManualDelete(__instance.gameObject.GetComponent<PingComponent>());
+#if DEBUG
+            MelonLogger.Msg("[MotionTracker].Harmony.DeathPatch3.Postfix.345  (" + __instance.name + ":" + __instance.GetInstanceID() + ") BaseAi Despawn event.");
+#endif
+        }
+    }
+
+    [HarmonyLib.HarmonyPatch(typeof(BaseAi), "ProcessDead")]
+    public class ProcessDeadPatch
+    {
+        public static void Postfix(ref BaseAi __instance)
+        {
+#if DEBUG
+            // MelonLogger.Msg("[MotionTracker].Harmony.ProcessDeadPatch.Postfix.356  (" + __instance.name + ":" + __instance.GetInstanceID() + ") BaseAi ProcessDead event.");    // Lot of data!
+#endif
+            // PingComponent.ManualDelete(__instance.gameObject.GetComponent<PingComponent>());
+        }
+    }
+
+    [HarmonyLib.HarmonyPatch(typeof(BaseAi), "ExitDead")]
+    public class ExitDeadPatch
+    {
+        public static void Postfix(ref BaseAi __instance)
+        {
+#if DEBUG
+            MelonLogger.Msg("[MotionTracker].Harmony.ExitDeadPatch.Postfix.368  (" + __instance.name + ":" + __instance.GetInstanceID() + ") BaseAi ExitDead event.");
+#endif
+            // PingComponent.ManualDelete(__instance.gameObject.GetComponent<PingComponent>());
+        }
+    }
+
 
     [HarmonyLib.HarmonyPatch(typeof(Panel_Base), "Enable", new Type[] { typeof(bool)})]
     public class PanelPatch
