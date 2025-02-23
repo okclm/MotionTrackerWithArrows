@@ -23,28 +23,15 @@ namespace MotionTracker
 
         public static GameObject modSettingPage;
 
-        public static Dictionary<PingManager.AnimalType, GameObject> animalPingPrefabs = new Dictionary<PingManager.AnimalType, GameObject>();
+        public static Dictionary<PingManager.AnimalType, GameObject> animalPingPrefabs = new Dictionary<PingManager.AnimalType, GameObject>();  // The dictionary of animal prefabs is instantiated (again!?) in FirstTimeSetup.
+        // public static Dictionary<PingManager.AnimalType, GameObject>? animalPingPrefabs;
         public static Dictionary<ProjectileType, GameObject> spraypaintPingPrefabs = new Dictionary<ProjectileType, GameObject>();
 
-        //public static GameObject arrow;
-        // public GameObject player;
-        //public Transform arrow2;
-
-        // From https://discussions.unity.com/t/how-to-find-a-child-gameobject-by-name/31255/3
-        //public GameObject GetChildGameObject(GameObject fromGameObject, string withName)
-        //{
-        //    var allKids = fromGameObject.GetComponentsInChildren<Transform>();
-        //    var kid = allKids.FirstOrDefault(k => k.gameObject.name == withName);
-        //    if (kid == null) return null;
-        //    return kid.gameObject;
-        //}
-
-
-        public void LogMessage(string message, [CallerLineNumber] int lineNumber = 0, [CallerMemberName] string? caller = null)
+        public void LogMessage(string message, [CallerLineNumber] int lineNumber = 0, [CallerMemberName] string? caller = null, [CallerFilePath] string? filepath = null)
         {
-            #if DEBUG
-                LoggerInstance.Msg("." + caller + "." + lineNumber + ": " + message);
-            #endif
+#if DEBUG
+            MelonLogger.Msg(Path.GetFileName(filepath) + ":" + caller + "." + lineNumber + ": " + message);
+#endif
         }
 
         public override void OnInitializeMelon()
@@ -74,41 +61,47 @@ namespace MotionTracker
 
         public override void OnSceneWasLoaded(int buildIndex, string sceneName)
 		{
-            // LoggerInstance.Msg($"Scene {sceneName} with build index {buildIndex} has been loaded!");    // CLM
-
+#if DEBUG
+            LogMessage($"Scene {sceneName} with build index {buildIndex} has been loaded.");    // CLM
+#endif
             if (sceneName.Contains("MainMenu"))
             {
                 //SCRIPT_InterfaceManager/_GUI_Common/Camera/Anchor/Panel_OptionsMenu/Pages/ModSettings/GameObject/ScrollPanel/Offset/
-
+#if DEBUG
+                LogMessage("Scene name containing MainMenu " + sceneName + " was loaded.");
+#endif
                 PingManager.inMenu = true;
                 
-                #if DEBUG
-                    LogMessage("Scene name containing MainMenu " + sceneName + " was loaded. (1)");
-                #endif
-
                 FirstTimeSetup();
             }
             else if (sceneName.Contains("SANDBOX") && motionTrackerParent)
             {
-                /// Debug.Log("MotionTracker.cs:OnSceneWasLoaded: Contains SANDBOX");
-                #if DEBUG
-                    LogMessage("Scene name containing SANDBOX " + sceneName + " was loaded. (2)");
-                #endif
+
+#if DEBUG
+                    LogMessage("Scene name containing SANDBOX " + sceneName + " was loaded.");
+#endif
 
                 if (PingManager.instance)
                 {
-#if DEBUG
-                    MelonLogger.Msg("[MotionTracker].MotionTracker.OnSceneWasLoaded.101 Scene name containing SANDBOX " + sceneName + " was loaded.");
-#endif
                     PingManager.instance.ClearIcons();
-                    PingManager.inMenu = false;
                 }
+                PingManager.inMenu = false;
             }
             else
             {
-                #if DEBUG
-                    LogMessage("Uninteresting scene " + sceneName + " was loaded. (3)");
-                #endif
+#if DEBUG
+                LogMessage("Non-Menu and Non-Sandbox scene " + sceneName + " was loaded. (3)");
+#endif
+                // This is a scene that doesn't have "MainMenu" or "Sandbox" in the name.
+                // The original MotionTracker was focused on animals and spraypaint decals.
+                // This scene name could be something like "CanneryTrailerA_DLC01" (the trailer in the BI cannery yard).  And if we have stuff on the radar from the previous scene,
+                // we should reset that.
+                if (PingManager.instance)
+                
+                {
+                    PingManager.instance.ClearIcons();
+                }
+                PingManager.inMenu = false;
             }
         }
 
@@ -124,7 +117,7 @@ namespace MotionTracker
 
                 GameObject prefabSafe = new GameObject("PrefabSafe");
                 prefabSafe.transform.parent = motionTrackerParent.transform;
-                animalPingPrefabs = new Dictionary<PingManager.AnimalType, GameObject>();
+                animalPingPrefabs = new Dictionary<PingManager.AnimalType, GameObject>();   // Instantiate (again!?) the dictionary of animal prefabs.
                 animalPingPrefabs.Add(PingManager.AnimalType.Crow, GameObject.Instantiate(assetBundle.LoadAsset<GameObject>("crow"), prefabSafe.transform));
                 animalPingPrefabs.Add(PingManager.AnimalType.Rabbit, GameObject.Instantiate(assetBundle.LoadAsset<GameObject>("rabbit"), prefabSafe.transform));
                 animalPingPrefabs.Add(PingManager.AnimalType.Wolf, GameObject.Instantiate(assetBundle.LoadAsset<GameObject>("wolf"), prefabSafe.transform));
@@ -137,8 +130,8 @@ namespace MotionTracker
                 animalPingPrefabs.Add(PingManager.AnimalType.PuffyBird, GameObject.Instantiate(assetBundle.LoadAsset<GameObject>("ptarmigan"), prefabSafe.transform));
 
                 // CLM - Arrows!
-                // Throws exception.  The asset bundle contains user developed sprites.  No Arrow sprite... so would need to either
-                // add an Arrow sprite and rebuild the asset bundle or create a separate asset bundle for the arrow and Cougar and anything else.
+                // The asset bundle contains user developed sprites.  No Arrow or Cougar sprite... so would need to either
+                // add an Arrow and Cougar sprite and rebuild the asset bundle or create a separate asset bundle for the Arrow and Cougar and anything else.
                 // 
                 // animalPingPrefabs.Add(PingManager.AnimalType.Arrow, GameObject.Instantiate(assetBundle.LoadAsset<GameObject>("arrow"), prefabSafe.transform));
                 
