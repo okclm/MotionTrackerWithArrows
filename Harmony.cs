@@ -157,7 +157,7 @@ namespace MotionTracker
                         if (__instance.gameObject.GetComponent<PingComponent>())
                         {
                             #if DEBUG
-                                // MyLogger.LogMessage("   (" + __instance.DisplayName + ":" + __instance.m_InstanceID + ") PingComponent exists.");
+                                MyLogger.LogMessage("   (" + __instance.name + ":" + __instance.m_InstanceID + ") PingComponent exists for arrow in container.  Delete pingComponent to remove from radar.");
                             #endif
 
                             PingComponent.ManualDelete(__instance.gameObject.GetComponent<PingComponent>());
@@ -178,9 +178,9 @@ namespace MotionTracker
 
                         if (__instance.gameObject.GetComponent<PingComponent>())
                         {
-                            #if DEBUG
-                                // MyLogger.LogMessage("   (" + __instance.DisplayName + ":" + __instance.m_InstanceID + ") PingComponent exists.");
-                            #endif
+                        #if DEBUG
+                            MyLogger.LogMessage("   (" + __instance.name + ":" + __instance.m_InstanceID + ") PingComponent exists for arrow in inventory.  Delete pingComponent to remove from radar.");
+                        #endif
 
                             PingComponent.ManualDelete(__instance.gameObject.GetComponent<PingComponent>());
                         }
@@ -192,7 +192,7 @@ namespace MotionTracker
                     {
                         // Arrow is not in inventory or container and does not have a PingComponent
                         #if DEBUG
-                            MyLogger.LogMessage("See some kind of Arrow (" + __instance.DisplayName + ":" + __instance.m_InstanceID + ") and adding PingComponent to object.");
+                            MyLogger.LogMessage("See some kind of wild Arrow (" + __instance.name + ":" + __instance.m_InstanceID + ") and adding PingComponent to object to display on radar.");
                         #endif
 
                         __instance.gameObject.AddComponent<PingComponent>().Initialize(PingManager.AnimalType.Arrow);   // Add the PingComponent for the arrow
@@ -214,7 +214,7 @@ namespace MotionTracker
             if (__instance.gameObject.GetComponent<PingComponent>())
             {
                 #if DEBUG
-                    //MyLogger.LogMessage("(" + __instance.DisplayName + ":" + __instance.m_InstanceID + ") OnDestroy event.");
+                    MyLogger.LogMessage("(" + __instance.DisplayName + ":" + __instance.m_InstanceID + ") OnDestroy event.");
                 #endif
 
                 PingComponent.ManualDelete(__instance.gameObject.GetComponent<PingComponent>());
@@ -238,7 +238,7 @@ namespace MotionTracker
             if (__instance.m_CurrentMode == AiMode.Dead || __instance.m_CurrentMode == AiMode.Disabled || __instance.m_CurrentMode == AiMode.None)
             {
 #if DEBUG
-                // MyLogger.LogMessage("(" + __instance.name + ":" + __instance.GetInstanceID() + ") AiMode dead, disabled, or none.  No processing.");
+                MyLogger.LogMessage("(" + __instance.name + ":" + __instance.GetInstanceID() + ") AiMode dead, disabled, or none.  No processing.");
 #endif
                 return;
             }

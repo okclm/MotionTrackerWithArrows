@@ -178,7 +178,6 @@ namespace MotionTracker
 
                 if (!pingComponent.attachedGameObject && !pingComponent.attachedGearItem)
                 {
-
                     pingComponent.LogMessage("pingComponent.name = (" + pingComponent.name + ") attachedGearItem and attachedGameObject are both null!");
                 }
 #endif
@@ -317,13 +316,13 @@ namespace MotionTracker
 #if DEBUG
                             if (timer > triggerTime)
                             {
-                                LogMessage("(" + this.animalType + ") baseAi.currentmode = (" + baseAi.m_CurrentMode + ")");
+                                LogMessage("(" + this.gameObject.name + ":" + this.gameObject.GetInstanceID() + ") baseAi.currentmode = (" + baseAi.m_CurrentMode + ")");
                             }
 #endif
                             if (baseAi.m_CurrentMode == AiMode.Dead)
                             {
 #if DEBUG
-                                LogMessage("Deleting pingComponent for (" + this.animalType + ")");
+                                LogMessage("Deleting pingComponent for (" + this.gameObject.name + ":" + this.gameObject.GetInstanceID() + ")");
 #endif
                                 ManualDelete(this);
                                 return;
