@@ -116,10 +116,8 @@ namespace MotionTracker
             if (__instance.gameObject.name.Contains("Arrow"))
             {
 #if DEBUG
-                //MelonLogger.Msg("[MotionTracker].Harmony.GearItemCacheComponentsPatch.Postfix.106  (" + __instance.DisplayName + ":" + __instance.m_InstanceID +
-                    //") Inventory=" + __instance.m_InsideContainer + ", Container=" + __instance.m_InPlayerInventory + ") CacheComponents event.");
-
-                MyLogger.LogMessage("(" + __instance.DisplayName + ":" + __instance.m_InstanceID + ") Inventory=" + __instance.m_InsideContainer + ", Container=" + __instance.m_InPlayerInventory + ") CacheComponents event.");
+                // This is the first? event that is called for each GearItem.  However, it's too early to determine if the Arrow is in a container or player's inventory.  Think of it as the Awake vs Start event.
+                // MyLogger.LogMessage("(" + __instance.DisplayName + ":" + __instance.m_InstanceID + ") Inventory=" + __instance.m_InsideContainer + ", Container=" + __instance.m_InPlayerInventory + ") CacheComponents event.");
 #endif
             }
         }

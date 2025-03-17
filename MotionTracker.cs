@@ -15,6 +15,7 @@ namespace MotionTracker
     public class MotionTrackerMain : MelonMod
 	{
         public static AssetBundle assetBundle;
+        public static AssetBundle assetBundle2;
         public static GameObject motionTrackerParent;
         public static PingManager activePingManager;
 
@@ -44,6 +45,7 @@ namespace MotionTracker
             ClassInjector.RegisterTypeInIl2Cpp<PingManager>();
             ClassInjector.RegisterTypeInIl2Cpp<PingComponent>();
             LoadEmbeddedAssetBundle();
+            LoadEmbeddedAssetBundle2();
 
             MotionTracker.Settings.OnLoad();
         }
@@ -56,6 +58,16 @@ namespace MotionTracker
             stream.CopyTo(memoryStream);
 
             assetBundle = AssetBundle.LoadFromMemory(memoryStream.ToArray());
+
+        }
+        public static void LoadEmbeddedAssetBundle2()
+        {
+            MemoryStream memoryStream;
+            Stream stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("MotionTracker.Resources.motiontrackerassetbundleprefab");
+            memoryStream = new MemoryStream((int)stream.Length);
+            stream.CopyTo(memoryStream);
+
+            assetBundle2 = AssetBundle.LoadFromMemory(memoryStream.ToArray());
 
         }
 
@@ -123,7 +135,7 @@ namespace MotionTracker
                 animalPingPrefabs.Add(PingManager.AnimalType.Wolf, GameObject.Instantiate(assetBundle.LoadAsset<GameObject>("wolf"), prefabSafe.transform));
                 animalPingPrefabs.Add(PingManager.AnimalType.Timberwolf, GameObject.Instantiate(assetBundle.LoadAsset<GameObject>("timberwolf"), prefabSafe.transform));
                 animalPingPrefabs.Add(PingManager.AnimalType.Bear, GameObject.Instantiate(assetBundle.LoadAsset<GameObject>("bear"), prefabSafe.transform));
-                animalPingPrefabs.Add(PingManager.AnimalType.Cougar, GameObject.Instantiate(assetBundle.LoadAsset<GameObject>("bear"), prefabSafe.transform));  // This needs a Cougar asset.  Just use Bear for now.
+                animalPingPrefabs.Add(PingManager.AnimalType.Cougar, GameObject.Instantiate(assetBundle2.LoadAsset<GameObject>("cougar"), prefabSafe.transform));  // This needs a Cougar asset.  Just use Bear for now.
                 animalPingPrefabs.Add(PingManager.AnimalType.Moose, GameObject.Instantiate(assetBundle.LoadAsset<GameObject>("moose"), prefabSafe.transform));
                 animalPingPrefabs.Add(PingManager.AnimalType.Stag, GameObject.Instantiate(assetBundle.LoadAsset<GameObject>("stag"), prefabSafe.transform));
                 animalPingPrefabs.Add(PingManager.AnimalType.Doe, GameObject.Instantiate(assetBundle.LoadAsset<GameObject>("doe"), prefabSafe.transform));
@@ -135,7 +147,7 @@ namespace MotionTracker
                 // 
                 // animalPingPrefabs.Add(PingManager.AnimalType.Arrow, GameObject.Instantiate(assetBundle.LoadAsset<GameObject>("arrow"), prefabSafe.transform));
                 
-                animalPingPrefabs.Add(PingManager.AnimalType.Arrow, GameObject.Instantiate(assetBundle.LoadAsset<GameObject>("rabbit"), prefabSafe.transform));  // This needs an Arrow asset.  Just use rabbit for now.
+                animalPingPrefabs.Add(PingManager.AnimalType.Arrow, GameObject.Instantiate(assetBundle2.LoadAsset<GameObject>("arrow"), prefabSafe.transform));  // This needs an Arrow asset.  Just use rabbit for now.
 
 
                 spraypaintPingPrefabs = new Dictionary<ProjectileType, GameObject>();

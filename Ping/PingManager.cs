@@ -92,11 +92,9 @@ namespace MotionTracker
                 {
                     if (icon != null)
                     {
-                        if (icon.name.Contains( $"crow", StringComparison.CurrentCultureIgnoreCase)) // Use this to limit type of icon we are tracking / cleaning up
+                        // Use this to limit type of icon we are tracking / cleaning up  (i.e. Crows or Ptarmigans)
+                        if (icon.name.Contains( $"crow", StringComparison.CurrentCultureIgnoreCase) || icon.name.Contains( $"ptarmigan", StringComparison.CurrentCultureIgnoreCase)) 
                         {
-                            // LogMessage("Crow icon # " + i + " (" + icon.name + ":" + GetInstanceID() + ");  gameObject (" + icon.gameObject.name + ":" + icon.gameObject.GetInstanceID() + ") seen.");
-                            // iconPosition[icon.gameObject.GetInstanceID()] = icon.gameObject.transform.position;
-
 #if DEBUG
                             LogMessage("iconContainer icon # " + i + " Icon:ID (" + icon.name + ":" + icon.GetInstanceID() + ") " +
                                                 "GameObject:ID (" + icon.gameObject.name + ":" + icon.gameObject.GetInstanceID() + ") " +

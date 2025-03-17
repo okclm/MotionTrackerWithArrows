@@ -54,6 +54,7 @@
     </ItemGroup>
     <ItemGroup>
       <EmbeddedResource Include="Resources\motiontracker" />
+      <EmbeddedResource Include="Resources\motiontrackerassetbundleprefab" />
     </ItemGroup>
 
     <!--This is the list of assemblies that the mod references. Most of these are unnecessary for normal mods, but are included here for completeness.-->
