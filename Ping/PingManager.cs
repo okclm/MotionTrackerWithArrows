@@ -82,6 +82,8 @@ namespace MotionTracker
 
             // Let's check the status of the radar screen icons.
             // Can we determine that gameObject instanceID no longer exists in the scene?
+            // This seems to happen with crows.  Crows are managed by the FlockManager and are created and destroyed as the flock moves around the scene.  But the radar icons are not destroyed when the crows are destroyed.
+            // So we have to determine when the radar icon is orphaned and delete it.
             if (timer >= triggerTime)
             {
                 int i = 0;
@@ -92,8 +94,17 @@ namespace MotionTracker
                 {
                     if (icon != null)
                     {
-                        // Use this to limit type of icon we are tracking / cleaning up  (i.e. Crows or Ptarmigans)
-                        if (icon.name.Contains( $"crow", StringComparison.CurrentCultureIgnoreCase) || icon.name.Contains( $"ptarmigan", StringComparison.CurrentCultureIgnoreCase)) 
+                        // Use this to limit type of icon we are tracking / cleaning up  (i.e. Crows)
+                        if (icon.name.Contains($"crow", StringComparison.CurrentCultureIgnoreCase)
+                            // || icon.name.Contains($"ptarmigan", StringComparison.CurrentCultureIgnoreCase)
+                            // || icon.name.Contains($"moose", StringComparison.CurrentCultureIgnoreCase)
+                            // || icon.name.Contains($"bear", StringComparison.CurrentCultureIgnoreCase)
+                            // || icon.name.Contains($"doe", StringComparison.CurrentCultureIgnoreCase)
+                            // || icon.name.Contains($"stag", StringComparison.CurrentCultureIgnoreCase)
+                            // || icon.name.Contains($"wolf", StringComparison.CurrentCultureIgnoreCase)
+                            // || icon.name.Contains($"cougar", StringComparison.CurrentCultureIgnoreCase) 
+                            // || icon.name.Contains($"rabbit", StringComparison.CurrentCultureIgnoreCase)
+                            ) 
                         {
 #if DEBUG
                             LogMessage("iconContainer icon # " + i + " Icon:ID (" + icon.name + ":" + icon.GetInstanceID() + ") " +
@@ -105,7 +116,7 @@ namespace MotionTracker
                             if (iconPosition.TryGetValue(icon.gameObject.GetInstanceID(), value: out lastTransformPosition))
                             {
                                 // lastTransformPosition has the last position of the radar icon screen position.
-                                LogMessage("iconContainer icon # " + i + " GameObject:ID(" + icon.gameObject.name + ":" + icon.gameObject.GetInstanceID() + ") is in iconPosition dictionary.");
+                                LogMessage("iconContainer icon # " + i + " GameObject:ID(" + icon.gameObject.name + ":" + icon.gameObject.GetInstanceID() + ") is in iconPosition dictionary with lastTransformPosition = " + lastTransformPosition);
                             }
                             else
                             {
@@ -145,6 +156,7 @@ namespace MotionTracker
                             }
                             else
                             {
+                                // The current position of the gameObject is different (updated) from the previous position.  Update the iconPosition dictionary with the latest position of the icon.
                                 if (iconPosition.ContainsKey(icon.gameObject.GetInstanceID()))
                                 {
 #if DEBUG

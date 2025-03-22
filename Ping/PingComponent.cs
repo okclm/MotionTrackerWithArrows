@@ -8,6 +8,7 @@ using Il2CppInterop.Runtime.Attributes;
 using UnityEngine.UI;
 using Il2CppTLD.Logging;
 using System.Runtime.CompilerServices;
+using Il2CppNewtonsoft.Json;
 
 namespace MotionTracker
 {
@@ -65,7 +66,7 @@ namespace MotionTracker
 
             iconObject.transform.SetParent(PingManager.instance.iconContainer.transform, false);        // What is this doing?
             iconObject.active = true;
-            canvasGroup = iconObject.GetComponent<CanvasGroup>();
+            canvasGroup = iconObject.GetComponent<CanvasGroup>();   // My arrow and cougar asset bundle does not have a CanvasGroup component.  So, this is null.  NOT GOOD!!!
             rectTransform = iconObject.GetComponent<RectTransform>();
         }
 
@@ -205,7 +206,7 @@ namespace MotionTracker
                 return; 
             }
 
-            if (AllowedToShow() && visibility)
+            if (AllowedToShow() && visibility)  // Allowed to show and visibility is true
             {
 #if DEBUG
                 // LogMessage("Setting canvasGroup.alpha = 1f for pingComponent.name = (" + this.name + ":" + this.gameObject.GetInstanceID() + ")");
@@ -226,7 +227,7 @@ namespace MotionTracker
                 //}
             }
             else
-            {
+            {   // Not allowed to show or visibility is false
 #if DEBUG
                 // LogMessage("Setting canvasGroup.alpha = 0f for pingComponent.name = (" + this.name + ":" + this.gameObject.GetInstanceID() + ")");
 #endif
@@ -388,47 +389,47 @@ namespace MotionTracker
 
                     if (this.name.Contains("Arrow"))
                     {
-                        iconImage.color = Color.magenta;    // Make the arrows show up magenta to distinguish from real rabbits.
+                        iconImage.color = Color.yellow;    // Make the arrows show up magenta for easier viewing.
                     }
 
-                    if (this.name.Contains("Cougar"))
-                    {
-                        iconImage.color = Color.yellow;     // Make the Cougar show up yellow to distinguish from real bears.
-                    }
+                    //if (this.name.Contains("Cougar"))
+                    //{
+                    //    iconImage.color = Color.yellow;     // Make the Cougar show up yellow to distinguish from real bears.
+                    //}
 
-#if DEBUG
-                    if (timer > triggerTime)
-                    {
+//#if DEBUG
+//                    if (timer > triggerTime)
+//                    {
 
-                        if (name.Contains("Arrow"))
-                        {
-                            LogMessage("Radar Arrow updating (" + this.name + ":" + this.attachedGearItem.m_InstanceID + ") position is (" + this.transform.position + ")");
-                        }
-                        else if (assignedCategory == PingCategory.Animal)
-                        {
-                            LogMessage("Radar Animal updating (" + this.name + ":" + this.attachedGameObject.GetInstanceID() + ") position is (" + this.transform.position + ")");
-                        }
-                        else if (name.Contains("DecalContainer")) // SprayPaint Decal
-                        {
-                             // LogMessage("Radar DecalContainer updating (" + this.name + ":" + this.attachedGameObject.GetInstanceID() + ") position is (" + this.transform.position + ")");
-                        }
-                        else
-                        {
-                            LogMessage("Radar ??? updating (" + this.name + ":" + this.attachedGameObject.GetInstanceID() + ") position is (" + this.transform.position + ")");
-                        }
-                    }
-#endif
+//                        if (name.Contains("Arrow"))
+//                        {
+//                            LogMessage("Radar Arrow updating (" + this.name + ":" + this.attachedGearItem.m_InstanceID + ") position is (" + this.transform.position + ")");
+//                        }
+//                        else if (assignedCategory == PingCategory.Animal)
+//                        {
+//                            LogMessage("Radar Animal updating (" + this.name + ":" + this.attachedGameObject.GetInstanceID() + ") position is (" + this.transform.position + ")");
+//                        }
+//                        else if (name.Contains("DecalContainer")) // SprayPaint Decal
+//                        {
+//                             // LogMessage("Radar DecalContainer updating (" + this.name + ":" + this.attachedGameObject.GetInstanceID() + ") position is (" + this.transform.position + ")");
+//                        }
+//                        else
+//                        {
+//                            LogMessage("Radar ??? updating (" + this.name + ":" + this.attachedGameObject.GetInstanceID() + ") position is (" + this.transform.position + ")");
+//                        }
+//                    }
+//#endif
 
                 }
             }
             else
             {
-#if DEBUG
-                if (timer > triggerTime)
-                {
-                    // LogMessage("(" + name + ":" + GetInstanceID() + ") Setting visible to FALSE.");   // Lot of data!
-                }
-#endif
+//#if DEBUG
+//                if (timer > triggerTime)
+//                {
+//                    // LogMessage("(" + name + ":" + GetInstanceID() + ") Setting visible to FALSE.");   // Lot of data!
+//                }
+//#endif
                     SetVisible(false);
             }
         }
@@ -440,6 +441,16 @@ namespace MotionTracker
             float radarSize = GetRadarUISize();
 
             var scale = radarSize / Settings.options.detectionRange;
+
+            //#if DEBUG
+            //            if (name.Contains("Arrow"))
+            //            {
+            //                if (timer > triggerTime)
+            //                {
+            //                    LogMessage("(" + this.name + ":" + this.attachedGearItem.GetInstanceID() + ") distance to player=" + iconLocation + " radarSize=" + radarSize + " scale="+scale + " scaled iconLocation=" + iconLocation * scale);
+            //                }
+            //            }
+            //#endif
 
             iconLocation *= scale;
 
@@ -469,25 +480,58 @@ namespace MotionTracker
                 iconLocation = new Vector2(rotatedIconLocation.x, rotatedIconLocation.z);
             }
 
-            #if DEBUG
-                //if (this.name.Contains("Arrow"))
-                //{
-                    if (timer > triggerTime)
-                    {
-                                // MelonLogger.Msg("[MotionTracker].PingComponent.TryGetIconLocation.438: Assigned category is Animal.Arrow (" + this.name + ") and final distance (iconLocation) = " + iconLocation);  // Lot of data.
-                    }
-                //}
-            #endif
+            //#if DEBUG
+            //            if (this.name.Contains("Arrow"))
+            //            {
+            //                if (timer > triggerTime)
+            //                {
+            //                    LogMessage("GameObject:ID (" + this.attachedGearItem.name + ":" + this.gameObject.GetInstanceID() + ") assigned category is Animal.Arrow and final distance(iconLocation) = " + iconLocation);
+            //                }
+            //            }
+            //#endif
 
             if (iconLocation.sqrMagnitude < radarSize * radarSize || this.clampOnRadar)
             {
                 // Make sure it is not shown outside the radar
                 iconLocation = Vector2.ClampMagnitude(iconLocation, radarSize);
+                //#if DEBUG
+                //                if (this.name.Contains("Arrow"))
+                //                {
+                //                    if (timer > triggerTime)
+                //                    {
+                //                        LogMessage("GameObject:ID (" + this.gameObject.name + ":" + this.attachedGearItem.GetInstanceID() + ") inside radar display. ClampMagnitude distance(iconLocation) = " + iconLocation);
+                //                    }
+                //                }
+                //#endif
 
                 return true;
             }
+            else
+            {
+                // gameObject is outside radar reporting area.  Can we check if it has a icon that we can remove?
+                // if you delete here for animals like the cougar, then the cougar will not be visible on the radar.
+                // And, the cougar will NOT reappear on the radar when it comes back into the radar reporting area because we rely on the BaseAi-"Start" event to detect the existence of the cougar.
+                // So, still have an issue with orphaned cougar icons on the radar.
+                // Ok... I don't think we want to delete anything at this point.  Just return false.  The calling code will hide the icon if we retrun false.
 
-            return false;
+                //if (this.name.Contains("Arrow"))    // Only delete if it's an arrow-ish thing...
+                //    {
+                //        ManualDelete(this);
+                //}
+
+                //#if DEBUG
+                //                // if (this.name.Contains("Arrow"))
+                //                if (assignedCategory == PingCategory.Animal)    // Leave the spraypaint decals alone...
+                //            {
+                //                if (timer > triggerTime)
+                //                {
+                //                    LogMessage("GameObject:ID (" + this.gameObject.name + ":" + this.gameObject.GetInstanceID() + ") detected outside radar display. sqrMagnitude distance(iconLocation.sqrMagnitude) = " + iconLocation.sqrMagnitude);
+                //                }
+                //            }
+                //#endif
+
+                return false;
+            }
         }
 
         private float GetRadarUISize()
