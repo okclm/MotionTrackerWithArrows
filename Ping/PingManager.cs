@@ -18,10 +18,11 @@ namespace MotionTracker
         {
         }
         // public enum AnimalType { Crow, Rabbit, Stag, Doe, Wolf, Timberwolf, Bear, Moose, PuffyBird };
-        
+
         // CLM - Hack... adding Arrow to the AnimalType enum so we can look for Arrows in the scene
         // CLM - adding Cougar to the AnimalType enum so we can track cougars in the scene
-        public enum AnimalType { Crow, Rabbit, Stag, Doe, Wolf, Timberwolf, Bear, Moose, PuffyBird, Cougar, Arrow };
+        // CLM - adding RawFish to the AnimalType enum so we can track RawCohoSalmon and other raw fish in the scene
+        public enum AnimalType { Crow, Rabbit, Stag, Doe, Wolf, Timberwolf, Bear, Moose, PuffyBird, Cougar, Arrow, Coal, RawFish, LostAndFoundBox };
 
         public static bool isVisible = false;
         public static PingManager? instance;
@@ -41,6 +42,8 @@ namespace MotionTracker
         public int stuckPositionCounter = 0;    // This will track the number of times the radar icon is in the same position.
         public Dictionary<int, Vector3> iconPosition = new Dictionary<int, Vector3>();  // This will track the position of the radar icon for each icon instance ID.
 
+        //public RadialSpawnManager? radialSpawnManager;
+
         public void LogMessage(string message, [CallerLineNumber] int lineNumber = 0, [CallerMemberName] string? caller = null, [CallerFilePath] string? filepath = null)
         {
 #if DEBUG
@@ -53,8 +56,6 @@ namespace MotionTracker
 #if DEBUG
             LogMessage("iconContainer has " + icons.Count() + " elements.");
 #endif
-            // int x = icons.Count();
-
             foreach (Image icon in icons) 
             { 
                 if (icon.gameObject == null) 
@@ -66,7 +67,6 @@ namespace MotionTracker
 
                 Destroy(icon.gameObject);
             }
-            /// Debug.Log("PingManager.cs:ClearIcons: Cleared Icons");
 #if DEBUG
             LogMessage("Clearing the iconPosition dictionary so we can start fresh with new icons.");
 #endif 
@@ -88,14 +88,22 @@ namespace MotionTracker
             {
                 int i = 0;
                 Image[] icons = iconContainer.transform.GetComponentsInChildren<Image>();                        // What sort of magic is this!?  Get all the Image components in the iconContainer.
-                LogMessage("PingManager Update. iconContainer has " + icons.Count() + " icon elements.");
+                // LogMessage("PingManager Update. iconContainer has " + icons.Count() + " icon elements.");
 
                 foreach (Image icon in icons)
                 {
                     if (icon != null)
                     {
-                        // Use this to limit type of icon we are tracking / cleaning up  (i.e. Crows)
+                        //#if DEBUG
+                        //                        // Show ALL icons in the debug log.  Lot of data.
+                        //                        LogMessage("iconContainer icon # " + i + " Icon:ID (" + icon.name + ":" + icon.GetInstanceID() + ") " +
+                        //                                            "GameObject:ID (" + icon.gameObject.name + ":" + icon.gameObject.GetInstanceID() + ") " +
+                        //                                            "GameObject:Position (" + icon.gameObject.transform.position + ")");
+                        //#endif
+
+                        // Use this to limit type of icon we are tracking / cleaning up  (i.e. Crows).  Only use objects that move within the scene.
                         if (icon.name.Contains($"crow", StringComparison.CurrentCultureIgnoreCase)
+                            // || icon.name.Contains($"coal", StringComparison.CurrentCultureIgnoreCase)    // Not appropriate for Coal which is a static object in the scene.  It does not move.
                             // || icon.name.Contains($"ptarmigan", StringComparison.CurrentCultureIgnoreCase)
                             // || icon.name.Contains($"moose", StringComparison.CurrentCultureIgnoreCase)
                             // || icon.name.Contains($"bear", StringComparison.CurrentCultureIgnoreCase)
@@ -104,47 +112,52 @@ namespace MotionTracker
                             // || icon.name.Contains($"wolf", StringComparison.CurrentCultureIgnoreCase)
                             // || icon.name.Contains($"cougar", StringComparison.CurrentCultureIgnoreCase) 
                             // || icon.name.Contains($"rabbit", StringComparison.CurrentCultureIgnoreCase)
-                            ) 
+                            )
                         {
 #if DEBUG
-                            LogMessage("iconContainer icon # " + i + " Icon:ID (" + icon.name + ":" + icon.GetInstanceID() + ") " +
-                                                "GameObject:ID (" + icon.gameObject.name + ":" + icon.gameObject.GetInstanceID() + ") " +
-                                                "GameObject:Position (" + icon.gameObject.transform.position + ")");
+                            // Show FILTERED (i.e. crows, coal) icons in the debug log.  Lot of data.
+                            //LogMessage("iconContainer icon # " + i + " Icon:ID (" + icon.name + ":" + icon.GetInstanceID() + ") " +
+                            //                    "GameObject:ID (" + icon.gameObject.name + ":" + icon.gameObject.GetInstanceID() + ") " +
+                            //                    "GameObject:Position (" + icon.gameObject.transform.position + ") stuckPositionCounter=" + stuckPositionCounter);
 #endif
                             // Determine if this icon is orphaned.
                             // lastTransformPosition = Vector3.zero;   // Zero out the last position of the radar icon screen position.
                             if (iconPosition.TryGetValue(icon.gameObject.GetInstanceID(), value: out lastTransformPosition))
                             {
                                 // lastTransformPosition has the last position of the radar icon screen position.
-                                LogMessage("iconContainer icon # " + i + " GameObject:ID(" + icon.gameObject.name + ":" + icon.gameObject.GetInstanceID() + ") is in iconPosition dictionary with lastTransformPosition = " + lastTransformPosition);
+                                // LogMessage("iconContainer icon # " + i + " GameObject:ID(" + icon.gameObject.name + ":" + icon.gameObject.GetInstanceID() + ") is in iconPosition dictionary with lastTransformPosition = " + lastTransformPosition);
                             }
                             else
                             {
                                 lastTransformPosition = Vector3.zero;   // Zero out the last position of the radar icon screen position.
-                                LogMessage("iconContainer icon # " + i + " GameObject:ID(" + icon.gameObject.name + ":" + icon.gameObject.GetInstanceID() + ") is NOT in iconPosition dictionary.");
+                                // LogMessage("iconContainer icon # " + i + " GameObject:ID(" + icon.gameObject.name + ":" + icon.gameObject.GetInstanceID() + ") is NOT in iconPosition dictionary.");
                             }
 
-                            if (lastTransformPosition == icon.gameObject.transform.position)      // How to determine that this icon is orphaned?
+                            if (lastTransformPosition == icon.gameObject.transform.position)      // How to determine that this icon is orphaned?  This check is if the icon has not moved since the last frame.
                             {
+                                // The current position of the gameObject is the same as the previous position.  This means the icon is orphaned and we can delete it.
+                                stuckPositionCounter += 1;  // This is the number of times ANY icon has not moved since the last frame.  Not very useful...
+
                                 // Remove entry in iconPosition dictionary and delete the icon.
 #if DEBUG
-                                LogMessage("Stale icon position detected!");
-                                LogMessage("icon # " + i + " GameObject:Position (" + icon.gameObject.name + ":" + icon.gameObject.transform.position + ") is the same as last position (" + lastTransformPosition + ") so deleting it.");
-
-                                LogMessage("Cleaning up iconPosition dictionary.  Total key/value pairs in iconPosition dictionary is : " + iconPosition.Count);
+                                //LogMessage("iconContainer icon # " + i + " Icon:ID (" + icon.name + ":" + icon.GetInstanceID() + ") " +
+                                //                    "GameObject:ID (" + icon.gameObject.name + ":" + icon.gameObject.GetInstanceID() + ") " +
+                                //                    "GameObject:Position (" + icon.gameObject.transform.position + ") stuckPositionCounter=" + stuckPositionCounter);
+                                //LogMessage("Stale icon position detected!  icon # " + i + " GameObject:Position (" + icon.gameObject.name + ":" + icon.gameObject.transform.position + ") is the same as last position (" + lastTransformPosition + ") so deleting it.");
+                                //LogMessage("Cleaning up iconPosition dictionary.  Total key/value pairs in iconPosition dictionary is : " + iconPosition.Count);
 #endif
                                 if (iconPosition.Remove(icon.gameObject.GetInstanceID()))
                                 {
 #if DEBUG
-                                    LogMessage("Removed key/value (" + icon.gameObject.name + ":" + icon.gameObject.GetInstanceID() + ") from iconPosition dictionary.");
-                                    LogMessage("Total key/value pairs in iconPosition dictionary (after deleting entry) is : " + iconPosition.Count);
+                                    //LogMessage("Removed key/value (" + icon.gameObject.name + ":" + icon.gameObject.GetInstanceID() + ") from iconPosition dictionary.");
+                                    //LogMessage("Total key/value pairs in iconPosition dictionary (after deleting entry) is : " + iconPosition.Count);
 #endif
                                 }
                                 else
                                 {
 #if DEBUG
-                                    LogMessage("Failed to remove key/value pair ("+ icon.gameObject.name + ":" + icon.gameObject.GetInstanceID() + ") from iconPosition dictionary.");
-                                    LogMessage("Total key/value pairs in iconPosition dictionary (after failed entry deletion) is : " + iconPosition.Count);
+                                    //LogMessage("Failed to remove key/value pair (" + icon.gameObject.name + ":" + icon.gameObject.GetInstanceID() + ") from iconPosition dictionary.");
+                                    //LogMessage("Total key/value pairs in iconPosition dictionary (after failed entry deletion) is : " + iconPosition.Count);
 #endif
                                 }
 
@@ -157,27 +170,28 @@ namespace MotionTracker
                             else
                             {
                                 // The current position of the gameObject is different (updated) from the previous position.  Update the iconPosition dictionary with the latest position of the icon.
+                                stuckPositionCounter = 0;  // Reset the number of times ANY icon has not moved since the last frame.
                                 if (iconPosition.ContainsKey(icon.gameObject.GetInstanceID()))
                                 {
 #if DEBUG
-                                    LogMessage("Icon # " + i + " GameObject:ID (" + icon.gameObject.name + ":" + icon.gameObject.GetInstanceID() + ") is in iconPosition dictionary.");
-                                    LogMessage("Total key/value pairs in iconPosition dictionary is : " + iconPosition.Count + ".  Updating iconPosition entry for GameObject:ID (" + icon.gameObject.name + ":" + icon.gameObject.GetInstanceID() + ")");
+                                    //LogMessage("Icon # " + i + " GameObject:ID (" + icon.gameObject.name + ":" + icon.gameObject.GetInstanceID() + ") is in iconPosition dictionary.");
+                                    //LogMessage("Total key/value pairs in iconPosition dictionary is : " + iconPosition.Count + ".  Updating iconPosition entry for GameObject:ID (" + icon.gameObject.name + ":" + icon.gameObject.GetInstanceID() + ")");
 #endif
                                     // record latest position of icon in iconPosition dictionary
                                     iconPosition[icon.gameObject.GetInstanceID()] = icon.gameObject.transform.position;
 #if DEBUG
-                                    LogMessage("Total key/value pairs in iconPosition dictionary (after updating entry) is : " + iconPosition.Count);
+                                    //LogMessage("Total key/value pairs in iconPosition dictionary (after updating entry) is : " + iconPosition.Count);
 #endif
                                 }
                                 else
                                 {
 #if DEBUG
-                                    LogMessage("Icon # " + i + " GameObject:ID (" + icon.gameObject.name + ":" + icon.gameObject.GetInstanceID() + ") is NOT in iconPosition dictionary.");
-                                    LogMessage("Total key/value pairs in iconPosition dictionary is : " + iconPosition.Count + ".  Adding iconPosition entry for GameObject:ID (" + icon.gameObject.name + ":" + icon.gameObject.GetInstanceID() + ")");
+                                    //LogMessage("Icon # " + i + " GameObject:ID (" + icon.gameObject.name + ":" + icon.gameObject.GetInstanceID() + ") is NOT in iconPosition dictionary.");
+                                    //LogMessage("Total key/value pairs in iconPosition dictionary is : " + iconPosition.Count + ".  Adding iconPosition entry for GameObject:ID (" + icon.gameObject.name + ":" + icon.gameObject.GetInstanceID() + ")");
 #endif
                                     iconPosition[icon.gameObject.GetInstanceID()] = icon.gameObject.transform.position;     // Add the icon to the iconPosition dictionary.
 #if DEBUG
-                                    LogMessage("Total key/value pairs in iconPosition dictionary (after adding entry) is : " + iconPosition.Count);
+                                    //LogMessage("Total key/value pairs in iconPosition dictionary (after adding entry) is : " + iconPosition.Count);
 #endif
                                 }
                             }

@@ -135,7 +135,7 @@ namespace MotionTracker
                 animalPingPrefabs.Add(PingManager.AnimalType.Wolf, GameObject.Instantiate(assetBundle.LoadAsset<GameObject>("wolf"), prefabSafe.transform));
                 animalPingPrefabs.Add(PingManager.AnimalType.Timberwolf, GameObject.Instantiate(assetBundle.LoadAsset<GameObject>("timberwolf"), prefabSafe.transform));
                 animalPingPrefabs.Add(PingManager.AnimalType.Bear, GameObject.Instantiate(assetBundle.LoadAsset<GameObject>("bear"), prefabSafe.transform));
-                animalPingPrefabs.Add(PingManager.AnimalType.Cougar, GameObject.Instantiate(assetBundle2.LoadAsset<GameObject>("cougar"), prefabSafe.transform));  // This needs a Cougar asset.  Just use Bear for now.
+                animalPingPrefabs.Add(PingManager.AnimalType.Cougar, GameObject.Instantiate(assetBundle2.LoadAsset<GameObject>("cougar"), prefabSafe.transform));  
                 animalPingPrefabs.Add(PingManager.AnimalType.Moose, GameObject.Instantiate(assetBundle.LoadAsset<GameObject>("moose"), prefabSafe.transform));
                 animalPingPrefabs.Add(PingManager.AnimalType.Stag, GameObject.Instantiate(assetBundle.LoadAsset<GameObject>("stag"), prefabSafe.transform));
                 animalPingPrefabs.Add(PingManager.AnimalType.Doe, GameObject.Instantiate(assetBundle.LoadAsset<GameObject>("doe"), prefabSafe.transform));
@@ -147,8 +147,10 @@ namespace MotionTracker
                 // 
                 // animalPingPrefabs.Add(PingManager.AnimalType.Arrow, GameObject.Instantiate(assetBundle.LoadAsset<GameObject>("arrow"), prefabSafe.transform));
                 
-                animalPingPrefabs.Add(PingManager.AnimalType.Arrow, GameObject.Instantiate(assetBundle2.LoadAsset<GameObject>("arrow"), prefabSafe.transform));  // This needs an Arrow asset.  Just use rabbit for now.
-
+                animalPingPrefabs.Add(PingManager.AnimalType.Arrow, GameObject.Instantiate(assetBundle2.LoadAsset<GameObject>("arrow"), prefabSafe.transform));  
+                animalPingPrefabs.Add(PingManager.AnimalType.Coal, GameObject.Instantiate(assetBundle2.LoadAsset<GameObject>("coal"), prefabSafe.transform));  
+                animalPingPrefabs.Add(PingManager.AnimalType.RawFish, GameObject.Instantiate(assetBundle2.LoadAsset<GameObject>("rawcohosalmon"), prefabSafe.transform));
+                animalPingPrefabs.Add(PingManager.AnimalType.LostAndFoundBox, GameObject.Instantiate(assetBundle2.LoadAsset<GameObject>("lostandfound"), prefabSafe.transform));
 
                 spraypaintPingPrefabs = new Dictionary<ProjectileType, GameObject>();
                 spraypaintPingPrefabs.Add(ProjectileType.SprayPaint_Direction, GameObject.Instantiate(assetBundle.LoadAsset<GameObject>("SprayPaint_Direction"), prefabSafe.transform));

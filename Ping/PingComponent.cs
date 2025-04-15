@@ -9,6 +9,7 @@ using UnityEngine.UI;
 using Il2CppTLD.Logging;
 using System.Runtime.CompilerServices;
 using Il2CppNewtonsoft.Json;
+using static Il2CppParadoxNotion.Services.Logger;
 
 namespace MotionTracker
 {
@@ -49,13 +50,34 @@ namespace MotionTracker
         }
 
         [HideFromIl2Cpp]
+        public static bool IsRawFish(GearItem gi)
+        {
+            if (gi != null)
+            {
+                FoodItem fi = gi.GetComponent<FoodItem>();
+                if (fi != null)
+                {
+                    if (fi.m_IsFish && fi.m_IsRawMeat)
+                    {
+                        return true;
+                    }
+                }
+                //if (gi.name.Contains(""))
+                //{
+                //    return true;
+                //}
+            }
+            return false;       // By default, return false.  Not a raw fish.
+        }
+
+        [HideFromIl2Cpp]
         public void CreateIcon()
         {
             if(assignedCategory == PingCategory.Animal)
             {
-                iconObject = Instantiate(MotionTrackerMain.GetAnimalPrefab(animalType));
-                iconImage = iconObject.GetComponent<Image>();
-                iconImage.color = Settings.animalColor;
+                iconObject = Instantiate(MotionTrackerMain.GetAnimalPrefab(animalType));    // Get the animal prefab from the MotionTrackerMain class.  This is a static method.
+                iconImage = iconObject.GetComponent<Image>();   // Get the Image component from the iconObject.  This is the object that we will be moving around on the radar UI.
+                iconImage.color = Settings.animalColor; //  Set the color of the icon to the animal color.  This is set in the settings menu.
             }
             else if (assignedCategory == PingCategory.Spraypaint)
             {
@@ -64,10 +86,10 @@ namespace MotionTracker
                 iconImage.color = Settings.spraypaintColor;
             }
 
-            iconObject.transform.SetParent(PingManager.instance.iconContainer.transform, false);        // What is this doing?
-            iconObject.active = true;
-            canvasGroup = iconObject.GetComponent<CanvasGroup>();   // My arrow and cougar asset bundle does not have a CanvasGroup component.  So, this is null.  NOT GOOD!!!
-            rectTransform = iconObject.GetComponent<RectTransform>();
+            iconObject.transform.SetParent(PingManager.instance.iconContainer.transform, false);        // What is this doing?  Make this Icon a child of the iconContainer.  This is the radar UI object.
+            iconObject.active = true;   //  Set the iconObject to active.  This is the object that we will be moving around on the radar UI.
+            canvasGroup = iconObject.GetComponent<CanvasGroup>();   // Make sure we have a canvasGroup to control the visibility of the icon.
+            rectTransform = iconObject.GetComponent<RectTransform>();   // Get the RectTransform of the iconObject.  This is the object that we will be moving around on the radar UI.
         }
 
         [HideFromIl2Cpp]
@@ -78,88 +100,105 @@ namespace MotionTracker
 #if DEBUG
                 if (attachedGearItem)
                 {
-                    LogMessage("pingComponent.name:attachedGearItem = (" + name + ":" + attachedGearItem.m_InstanceID + ")");
+                    //LogMessage("pingComponent.name:attachedGearItem = (" + attachedGearItem.name + ":" + attachedGearItem.m_InstanceID + ")");
                 }
 
                 if (attachedGameObject)
                 {
-                    LogMessage("pingComponent.name:attachedGameObject = (" + name + ":" + attachedGameObject.GetInstanceID() + ")");
+                    //LogMessage("pingComponent.name:attachedGameObject = (" + attachedGameObject.name + ":" + attachedGameObject.GetInstanceID() + ")");
                 }
 
                 if (!attachedGameObject && !attachedGearItem)
                 {
 
-                    LogMessage("pingComponent.name = (" + this.name + ") attachedGearItem and attachedGameObject are both null!");
+                    //LogMessage("pingComponent.name = (" + this.name + ") attachedGearItem and attachedGameObject are both null!");
                 }
 #endif
                 GameObject.Destroy(iconObject);
             }
-        }
-
-        [HideFromIl2Cpp]
-        public bool AllowedToShow()
-        {
-            if (assignedCategory == PingCategory.Animal)
+            else
             {
-                if (animalType == PingManager.AnimalType.Crow && Settings.options.showCrows)
-                {
-                    return true;
-                }
-                else if (animalType == PingManager.AnimalType.Rabbit && Settings.options.showRabbits)
-                {
-                    return true;
-                }
-                else if (animalType == PingManager.AnimalType.Stag && Settings.options.showStags)
-                {
-                    return true;
-                }
-                else if (animalType == PingManager.AnimalType.Doe && Settings.options.showDoes)
-                {
-                    return true;
-                }
-                else if (animalType == PingManager.AnimalType.Wolf && Settings.options.showWolves)
-                {
-                    return true;
-                }
-                else if (animalType == PingManager.AnimalType.Timberwolf && Settings.options.showTimberwolves)
-                {
-                    return true;
-                }
-                else if (animalType == PingManager.AnimalType.Bear && Settings.options.showBears)
-                {
-                    return true;
-                }
-                else if (animalType == PingManager.AnimalType.Cougar && Settings.options.showCougars)
-                {
-                    return true;
-                }
-                else if (animalType == PingManager.AnimalType.Moose && Settings.options.showMoose)
-                {
-                    return true;
-                }
-                else if (animalType == PingManager.AnimalType.PuffyBird && Settings.options.showPuffyBirds)
-                {
-                    return true;
-                }
-
-                // CLM - Arrows!
-                else if (animalType == PingManager.AnimalType.Arrow && Settings.options.showArrows)
-                {
-                    return true;
-                }
-
-                else
-                {
-                    return false;
-                }
+#if DEBUG
+                LogMessage("iconObject is null.  So not deleting iconObject for pingComponent.name = (" + this.name + ")");
+#endif
             }
-            else if (assignedCategory == PingCategory.Spraypaint && Settings.options.showSpraypaint)
-            {
-                return true;                
-            }         
-
-            return false;
         }
+
+            [HideFromIl2Cpp]
+            public bool AllowedToShow()
+            {
+                if (assignedCategory == PingCategory.Animal)
+                {
+                    if (animalType == PingManager.AnimalType.Crow && Settings.options.showCrows)
+                    {
+                        return true;
+                    }
+                    else if (animalType == PingManager.AnimalType.Rabbit && Settings.options.showRabbits)
+                    {
+                        return true;
+                    }
+                    else if (animalType == PingManager.AnimalType.Stag && Settings.options.showStags)
+                    {
+                        return true;
+                    }
+                    else if (animalType == PingManager.AnimalType.Doe && Settings.options.showDoes)
+                    {
+                        return true;
+                    }
+                    else if (animalType == PingManager.AnimalType.Wolf && Settings.options.showWolves)
+                    {
+                        return true;
+                    }
+                    else if (animalType == PingManager.AnimalType.Timberwolf && Settings.options.showTimberwolves)
+                    {
+                        return true;
+                    }
+                    else if (animalType == PingManager.AnimalType.Bear && Settings.options.showBears)
+                    {
+                        return true;
+                    }
+                    else if (animalType == PingManager.AnimalType.Cougar && Settings.options.showCougars)
+                    {
+                        return true;
+                    }
+                    else if (animalType == PingManager.AnimalType.Moose && Settings.options.showMoose)
+                    {
+                        return true;
+                    }
+                    else if (animalType == PingManager.AnimalType.PuffyBird && Settings.options.showPuffyBirds)
+                    {
+                        return true;
+                    }
+
+                    // Gear... Arrows, Coal, etc.
+                    else if (animalType == PingManager.AnimalType.Arrow && Settings.options.showArrows)
+                    {
+                        return true;
+                    }
+                    else if (animalType == PingManager.AnimalType.Coal && Settings.options.showCoal)
+                    {
+                        return true;
+                    }
+                    else if (animalType == PingManager.AnimalType.RawFish && Settings.options.showRawFish)
+                    {
+                    return true;
+                    }
+                    else if (animalType == PingManager.AnimalType.LostAndFoundBox && Settings.options.showLostAndFoundBox)
+                    {
+                        return true;
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                }
+                else if (assignedCategory == PingCategory.Spraypaint && Settings.options.showSpraypaint)
+                {
+                    return true;
+                }
+
+                return false;
+            }
 
         [HideFromIl2Cpp]
         public static void ManualDelete(PingComponent pingComponent)
@@ -169,17 +208,17 @@ namespace MotionTracker
 #if DEBUG
                 if (pingComponent.attachedGearItem)
                 {
-                    pingComponent.LogMessage("pingComponent.name:attachedGearItem = (" + pingComponent.name + ":" + pingComponent.attachedGearItem.m_InstanceID + ")");
+                    //pingComponent.LogMessage("pingComponent.name:attachedGearItem = (" + pingComponent.name + ":" + pingComponent.attachedGearItem.m_InstanceID + ")");
                 }
                 
                 if (pingComponent.attachedGameObject)
                 {
-                    pingComponent.LogMessage("pingComponent.name:attachedGameObject = (" + pingComponent.name + ":" + pingComponent.attachedGameObject.GetInstanceID() + ")");
+                    //pingComponent.LogMessage("pingComponent.name:attachedGameObject = (" + pingComponent.name + ":" + pingComponent.attachedGameObject.GetInstanceID() + ")");
                 }
 
                 if (!pingComponent.attachedGameObject && !pingComponent.attachedGearItem)
                 {
-                    pingComponent.LogMessage("pingComponent.name = (" + pingComponent.name + ") attachedGearItem and attachedGameObject are both null!");
+                    //pingComponent.LogMessage("pingComponent.name = (" + pingComponent.name + ") attachedGearItem and attachedGameObject are both null!");
                 }
 #endif
 
@@ -189,7 +228,8 @@ namespace MotionTracker
             else
             {
 #if DEBUG
-                // MelonLogger.Msg("[MotionTracker] PingComponent.cs: AllowedToShow.193: pingComponent is NULL so no delete.");
+                // pingComponent is null.  Can't use LogMessage because pingComponent is null.  So, use MelonLogger.Msg instead.    
+                // MelonLogger.Msg("PingComponent.cs:ManualDelete.199 pingComponent is NULL so no delete.");
 #endif
             }
         }
@@ -202,6 +242,7 @@ namespace MotionTracker
             {
 #if DEBUG
                 // LogMessage("canvasGroup null so not setting visibity (" + visibility + ") for pingComponent.name = (" + this.name + ")");
+                //LogMessage("canvasGroup null so not setting visibity (" + visibility + ") for pingComponent.name = (" + this.name + ":" + this.GetInstanceID() + ")");
 #endif
                 return; 
             }
@@ -210,6 +251,7 @@ namespace MotionTracker
             {
 #if DEBUG
                 // LogMessage("Setting canvasGroup.alpha = 1f for pingComponent.name = (" + this.name + ":" + this.gameObject.GetInstanceID() + ")");
+                //LogMessage("Setting canvasGroup.alpha = 1f for pingComponent.name = (" + this.name + ":" + this.GetInstanceID() + ")");
 #endif
                 try
                 {
@@ -217,44 +259,48 @@ namespace MotionTracker
                 }
                 catch (Exception e)
                 {
-                    LogMessage("Exception thrown (" + e.Message + ") when setting canvasGroup.alpha = 1f for pingComponent.name = (" + this.name + ")");
+                    LogMessage("Exception thrown (" + e.Message + ") when setting canvasGroup.alpha = 1f for pingComponent.name = (" + this.name + ":" + this.GetInstanceID() + ")");
                     // throw;
                 }
 
-                //if (animalType == PingManager.AnimalType.Arrow)
-                //{
-                    // LogMessage("Setting canvasGroup.alpha = 1f for pingComponent.name = (" + this.name + ")");
-                //}
+#if DEBUG
+                // if ((animalType == PingManager.AnimalType.Arrow) || (animalType == PingManager.AnimalType.Coal))
+                if (animalType == PingManager.AnimalType.Coal)
+                {
+                   // LogMessage("Setting canvasGroup.alpha = 1f for pingComponent.name = (" + this.name + ":" + this.GetInstanceID() + ")");
+                    // LogMessage("Setting canvasGroup.alpha = 1f for pingComponent.name = (" + this.name + ":" + this.gameObject.GetInstanceID() + ")");
+                }
+#endif 
             }
             else
             {   // Not allowed to show or visibility is false
 #if DEBUG
-                // LogMessage("Setting canvasGroup.alpha = 0f for pingComponent.name = (" + this.name + ":" + this.gameObject.GetInstanceID() + ")");
+                // if ((animalType == PingManager.AnimalType.Arrow) || (animalType == PingManager.AnimalType.Coal))
+                if (animalType == PingManager.AnimalType.Coal)
+                {
+                    // LogMessage("Setting canvasGroup.alpha = 0f for pingComponent.name = (" + this.name + ":" + this.gameObject.GetInstanceID() + ")");
+                   // LogMessage("Setting canvasGroup.alpha = 0f for pingComponent.name = (" + this.name + ":" + this.GetInstanceID() + ")");
+                }
 #endif
                 try
-                {
+                    {
                     canvasGroup.alpha = 0f;
                 }
                 catch (Exception e)
                 {
-                    LogMessage("Exception thrown (" + e.Message + ") when setting canvasGroup.alpha = 0f for pingComponent.name = (" + this.name + ")");
+                    LogMessage("Exception thrown (" + e.Message + ") when setting canvasGroup.alpha = 0f for pingComponent.name = (" + this.name + ":" + this.GetInstanceID() + ")");
+                    // LogMessage("Exception thrown (" + e.Message + ") when setting canvasGroup.alpha = 0f for pingComponent.name = (" + this.name + ")");
                     // throw;
                 }
-
-                // canvasGroup.alpha = 0f;
-                //if (animalType == PingManager.AnimalType.Arrow)
-                //{
-                    // LogMessage("Setting canvasGroup.alpha = 0f for pingComponent.name = (" + this.name + ")");
-                //}
             }
         }
 
         [HideFromIl2Cpp]       
         public void Initialize(PingManager.AnimalType type)
         {
-            #if DEBUG
-                // LogMessage("Initialize pingComponent.name = (" + this.name + ":" + this.gameObject.GetInstanceID() + ")");
-            #endif
+#if DEBUG
+            LogMessage("Initialize pingComponent.name = (" + this.name + ":" + this.gameObject.GetInstanceID() + ")");
+#endif
 
             attachedGameObject = this.gameObject;
             animalType = type;
@@ -317,13 +363,13 @@ namespace MotionTracker
 #if DEBUG
                             if (timer > triggerTime)
                             {
-                                LogMessage("(" + this.gameObject.name + ":" + this.gameObject.GetInstanceID() + ") baseAi.currentmode = (" + baseAi.m_CurrentMode + ")");
+                                //LogMessage("(" + this.gameObject.name + ":" + this.gameObject.GetInstanceID() + ") baseAi.currentmode = (" + baseAi.m_CurrentMode + ")");
                             }
 #endif
                             if (baseAi.m_CurrentMode == AiMode.Dead)
                             {
 #if DEBUG
-                                LogMessage("Deleting pingComponent for (" + this.gameObject.name + ":" + this.gameObject.GetInstanceID() + ")");
+                                //LogMessage("Deleting pingComponent for (" + this.gameObject.name + ":" + this.gameObject.GetInstanceID() + ")");
 #endif
                                 ManualDelete(this);
                                 return;
@@ -389,48 +435,57 @@ namespace MotionTracker
 
                     if (this.name.Contains("Arrow"))
                     {
-                        iconImage.color = Color.yellow;    // Make the arrows show up magenta for easier viewing.
+                        iconImage.color = Color.yellow;    // Color the arrows to help make them show up for easier viewing.
                     }
 
-                    //if (this.name.Contains("Cougar"))
+                    //if (this.name.Contains("RawFish"))
                     //{
-                    //    iconImage.color = Color.yellow;     // Make the Cougar show up yellow to distinguish from real bears.
+                    //    iconImage.color = Color.yellow;     // Make the RawFish show up yellow to for easier viewing.
                     //}
 
-//#if DEBUG
-//                    if (timer > triggerTime)
-//                    {
+#if DEBUG
+                    //if ((timer > triggerTime) && (name.Contains("RawCohoSalmon")))
+                    if ((timer > triggerTime) && (name.Contains("RawFish")))
+                    {
+                        //LogMessage("Radar Coal updating (" + this.name + ":" + this.attachedGearItem.m_InstanceID + ") position is (" + this.transform.position + ")");
+                    }
 
-//                        if (name.Contains("Arrow"))
-//                        {
-//                            LogMessage("Radar Arrow updating (" + this.name + ":" + this.attachedGearItem.m_InstanceID + ") position is (" + this.transform.position + ")");
-//                        }
-//                        else if (assignedCategory == PingCategory.Animal)
-//                        {
-//                            LogMessage("Radar Animal updating (" + this.name + ":" + this.attachedGameObject.GetInstanceID() + ") position is (" + this.transform.position + ")");
-//                        }
-//                        else if (name.Contains("DecalContainer")) // SprayPaint Decal
-//                        {
-//                             // LogMessage("Radar DecalContainer updating (" + this.name + ":" + this.attachedGameObject.GetInstanceID() + ") position is (" + this.transform.position + ")");
-//                        }
-//                        else
-//                        {
-//                            LogMessage("Radar ??? updating (" + this.name + ":" + this.attachedGameObject.GetInstanceID() + ") position is (" + this.transform.position + ")");
-//                        }
-//                    }
-//#endif
-
+                    //if (timer > triggerTime)
+                    //{
+                    //    if (name.Contains("Arrow"))
+                    //    {
+                    //        LogMessage("Radar Arrow updating (" + this.name + ":" + this.attachedGearItem.m_InstanceID + ") position is (" + this.transform.position + ")");
+                    //    }
+                    //    else if (name.Contains("Coal"))
+                    //        {
+                    //            LogMessage("Radar Coal updating (" + this.name + ":" + this.attachedGearItem.m_InstanceID + ") position is (" + this.transform.position + ")");
+                    //        }
+                    //    else if (assignedCategory == PingCategory.Animal)   // Some other GearItem "Animal"
+                    //    {
+                    //        LogMessage("Radar Animal updating (" + this.name + ":" + this.attachedGearItem.m_InstanceID + ") position is (" + this.transform.position + ")");
+                    //    }
+                    //    else if (name.Contains("DecalContainer")) // SprayPaint Decal?  Should never be here.
+                    //    {
+                    //        // LogMessage("Radar DecalContainer updating (" + this.name + ":" + this.attachedGameObject.GetInstanceID() + ") position is (" + this.transform.position + ")");
+                    //    }
+                    //    else
+                    //    {
+                    //        LogMessage("Radar ??? updating (" + this.name + ":" + this.attachedGameObject.GetInstanceID() + ") position is (" + this.transform.position + ")");
+                    //    }
+                    //}
+#endif
                 }
             }
             else
             {
-//#if DEBUG
-//                if (timer > triggerTime)
-//                {
-//                    // LogMessage("(" + name + ":" + GetInstanceID() + ") Setting visible to FALSE.");   // Lot of data!
-//                }
-//#endif
-                    SetVisible(false);
+#if DEBUG
+                if ((timer > triggerTime) && (name.Contains("RawFish")))
+                {
+                    //LogMessage("GearItem:ID (" + this.attachedGearItem.name + ":" + this.attachedGearItem.m_InstanceID + ") assigned category is Animal.RawFish and setting to NOT visible.");
+                    // LogMessage("(" + name + ":" + GetInstanceID() + ") Setting visible to FALSE.");   // Lot of data!
+                }
+#endif
+                SetVisible(false);
             }
         }
 
@@ -442,15 +497,16 @@ namespace MotionTracker
 
             var scale = radarSize / Settings.options.detectionRange;
 
-            //#if DEBUG
-            //            if (name.Contains("Arrow"))
-            //            {
-            //                if (timer > triggerTime)
-            //                {
-            //                    LogMessage("(" + this.name + ":" + this.attachedGearItem.GetInstanceID() + ") distance to player=" + iconLocation + " radarSize=" + radarSize + " scale="+scale + " scaled iconLocation=" + iconLocation * scale);
-            //                }
-            //            }
-            //#endif
+#if DEBUG
+            //if (name.Contains("RawCohoSalmon"))
+            if (name.Contains("RawFish"))
+            {
+                if (timer > triggerTime)
+                {
+                    //LogMessage("(" + this.name + ":" + this.attachedGearItem.GetInstanceID() + ") distance to player=" + iconLocation + " radarSize=" + radarSize + " scale=" + scale + " scaled iconLocation=" + iconLocation * scale);
+                }
+            }
+#endif
 
             iconLocation *= scale;
 
@@ -480,29 +536,29 @@ namespace MotionTracker
                 iconLocation = new Vector2(rotatedIconLocation.x, rotatedIconLocation.z);
             }
 
-            //#if DEBUG
-            //            if (this.name.Contains("Arrow"))
-            //            {
-            //                if (timer > triggerTime)
-            //                {
-            //                    LogMessage("GameObject:ID (" + this.attachedGearItem.name + ":" + this.gameObject.GetInstanceID() + ") assigned category is Animal.Arrow and final distance(iconLocation) = " + iconLocation);
-            //                }
-            //            }
-            //#endif
+#if DEBUG
+            if (this.name.Contains("Coal"))
+            {
+                if (timer > triggerTime)
+                {
+                    //LogMessage("GameObject:ID (" + this.attachedGearItem.name + ":" + this.gameObject.GetInstanceID() + ") assigned category is Animal.Coal and final distance(iconLocation) = " + iconLocation);
+                }
+            }
+#endif
 
             if (iconLocation.sqrMagnitude < radarSize * radarSize || this.clampOnRadar)
             {
                 // Make sure it is not shown outside the radar
                 iconLocation = Vector2.ClampMagnitude(iconLocation, radarSize);
-                //#if DEBUG
-                //                if (this.name.Contains("Arrow"))
-                //                {
-                //                    if (timer > triggerTime)
-                //                    {
-                //                        LogMessage("GameObject:ID (" + this.gameObject.name + ":" + this.attachedGearItem.GetInstanceID() + ") inside radar display. ClampMagnitude distance(iconLocation) = " + iconLocation);
-                //                    }
-                //                }
-                //#endif
+#if DEBUG
+                if (this.name.Contains("Coal"))
+                {
+                    if (timer > triggerTime)
+                    {
+                        //LogMessage("GameObject:ID (" + this.gameObject.name + ":" + this.attachedGearItem.GetInstanceID() + ") inside radar display. ClampMagnitude distance(iconLocation) = " + iconLocation);
+                    }
+                }
+#endif
 
                 return true;
             }
@@ -519,16 +575,16 @@ namespace MotionTracker
                 //        ManualDelete(this);
                 //}
 
-                //#if DEBUG
-                //                // if (this.name.Contains("Arrow"))
-                //                if (assignedCategory == PingCategory.Animal)    // Leave the spraypaint decals alone...
-                //            {
-                //                if (timer > triggerTime)
-                //                {
-                //                    LogMessage("GameObject:ID (" + this.gameObject.name + ":" + this.gameObject.GetInstanceID() + ") detected outside radar display. sqrMagnitude distance(iconLocation.sqrMagnitude) = " + iconLocation.sqrMagnitude);
-                //                }
-                //            }
-                //#endif
+#if DEBUG
+                if (this.name.Contains("Coal"))
+                //if (assignedCategory == PingCategory.Animal)    // Leave the spraypaint decals alone...
+                {
+                    if (timer > triggerTime)
+                    {
+                        //LogMessage("GameObject:ID (" + this.gameObject.name + ":" + this.gameObject.GetInstanceID() + ") detected outside radar display. sqrMagnitude distance(iconLocation.sqrMagnitude) = " + iconLocation.sqrMagnitude);
+                    }
+                }
+#endif
 
                 return false;
             }
@@ -549,13 +605,13 @@ namespace MotionTracker
                 if (timer > triggerTime)
                 {
 
-                    if (locatable.name.Contains("Arrow"))
+                    if (locatable.name.Contains("Arrow") || locatable.name.Contains("Coal"))
                     {
-                        LogMessage("Arrow (" + this.name + ":" + this.attachedGearItem.m_InstanceID + ") position is (" + this.transform.position + ") and distance is " + distanceToPlayer);
+                        //LogMessage("Gear item (" + this.name + ":" + this.attachedGearItem.m_InstanceID + ") position is (" + this.transform.position + ") and distance is " + distanceToPlayer);
                     }
                     else if (assignedCategory == PingCategory.Animal)
                     {
-                        LogMessage("Animal (" + this.name + ":" + this.attachedGameObject.GetInstanceID() + ") position is (" + this.transform.position + ") and distance is " + distanceToPlayer);
+                        //LogMessage("Animal (" + this.name + ":" + this.attachedGameObject.GetInstanceID() + ") position is (" + this.transform.position + ") and distance is " + distanceToPlayer);
                     }
                     else if (locatable.name.Contains("DecalContainer")) // SprayPaint Decal
                     {
@@ -563,7 +619,7 @@ namespace MotionTracker
                     }
                     else
                     {
-                        LogMessage("??? (" + this.name + ":" + this.attachedGameObject.GetInstanceID() + ") position is (" + this.transform.position + ") and distance is " + distanceToPlayer);
+                        //LogMessage("??? (" + this.name + ":" + this.attachedGameObject.GetInstanceID() + ") position is (" + this.transform.position + ") and distance is " + distanceToPlayer);
                     }
                 }
 #endif

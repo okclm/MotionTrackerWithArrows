@@ -11,6 +11,9 @@ using Il2CppTLD.Gear;
 using UnityEngine.Playables;
 using System.Runtime.Intrinsics.X86;
 using Il2CppTLD.Logging;
+using Il2CppNodeCanvas.Tasks.Actions;
+using HarmonyLib;
+
 
 
 // Digitalzombie — 09/25/2024 5:03 AM  https://discord.com/channels/322211727192358914/347067457564966913/1288441205679722506
@@ -65,8 +68,8 @@ namespace MotionTracker
     //    }
     //}
 
-// Logging of dropping and picking back up a couple of different arrows.  The fire hardened arrow came from a stack in inventory.  The manufactured
-// arrow was a single arrow not in a stack.  Note the slight differences in code execution.
+    // Logging of dropping and picking back up a couple of different arrows.  The fire hardened arrow came from a stack in inventory.  The manufactured
+    // arrow was a single arrow not in a stack.  Note the slight differences in code execution.
 
     // Drop a fire hardened arrow from inventory that was in a stack
     //[06:44:31.783] [MotionTracker].Harmony.GearItemCacheComponentsPatch.Postfix.74  (Fire Hardened Arrow:71276) Inventory=False, Container=False) CacheComponents event.
@@ -108,24 +111,581 @@ namespace MotionTracker
         }
     }
 
-    [HarmonyLib.HarmonyPatch(typeof(GearItem), "CacheComponents")]
-    public class GearItemCacheComponentsPatch
+    // Lost and Found box
+
+    // public unsafe void Awake()
+    [HarmonyLib.HarmonyPatch(typeof(Container), "Awake")]
+    public class ContainerAwakePatch
     {
-        public static void Postfix(ref GearItem __instance)
+        public static void Postfix(ref Container __instance)
         {
-            if (__instance.gameObject.name.Contains("Arrow"))
+            if (__instance.name.Contains("CONTAINER_InaccessibleGear"))
             {
 #if DEBUG
-                // This is the first? event that is called for each GearItem.  However, it's too early to determine if the Arrow is in a container or player's inventory.  Think of it as the Awake vs Start event.
-                // MyLogger.LogMessage("(" + __instance.DisplayName + ":" + __instance.m_InstanceID + ") Inventory=" + __instance.m_InsideContainer + ", Container=" + __instance.m_InPlayerInventory + ") CacheComponents event.");
+                // This is the Awake event that is called for each InaccessibleGearContainer.
+                // MyLogger.LogMessage("(" + __instance.DisplayName + ":" + __instance.m_InstanceID + ") Inventory=" + __instance.m_InsideContainer + ", Container=" + __instance.m_InPlayerInventory + ") CompleteSpawnFromCONSOLE event.");
+                MyLogger.LogMessage("(" + __instance.name + ":" + __instance.GetInstanceID() + ") Container Awake event.");
 #endif
             }
         }
     }
 
-    // We are relying on the ManualUpdate event to catch GearItems needing to be tracked or not (instantiate a pingComponent or delete an exiting pingComponent.
-    // In testing, sometimes an Arrow on the radar becomes "stuck" at the origin (center) that never updates.
-    // Hypothesis: This happens after picking up an Arrow from the ground.  It goes into inventory (Arrow GearItem object is deleted) but
+    // public unsafe void Start()
+    [HarmonyLib.HarmonyPatch(typeof(Container), "Start")]
+    public class ContainerStartPatch
+    {
+        public static void Postfix(ref Container __instance)
+        {
+            if (__instance.name.Contains("CONTAINER_InaccessibleGear"))
+            {
+#if DEBUG
+                // This is the Start event that is called for each InaccessibleGearContainer.
+                // MyLogger.LogMessage("(" + __instance.DisplayName + ":" + __instance.m_InstanceID + ") Inventory=" + __instance.m_InsideContainer + ", Container=" + __instance.m_InPlayerInventory + ") CompleteSpawnFromCONSOLE event.");
+                MyLogger.LogMessage("(" + __instance.name + ":" + __instance.GetInstanceID() + ") Container Start event.");
+#endif
+            }
+        }
+    }
+
+    // public unsafe void OnEnable()
+    [HarmonyLib.HarmonyPatch(typeof(Container), "OnEnable")]
+    public class ContainerOnEnablePatch
+    {
+        public static void Postfix(ref Container __instance)
+        {
+            if (__instance.name.Contains("CONTAINER_InaccessibleGear"))
+            {
+#if DEBUG
+                // This is the OnEnable event that is called for each InaccessibleGearContainer.
+                // MyLogger.LogMessage("(" + __instance.DisplayName + ":" + __instance.m_InstanceID + ") Inventory=" + __instance.m_InsideContainer + ", Container=" + __instance.m_InPlayerInventory + ") CompleteSpawnFromCONSOLE event.");
+                MyLogger.LogMessage("(" + __instance.name + ":" + __instance.GetInstanceID() + ") Container OnEnable event.");
+#endif
+            }
+        }
+    }
+
+    // public unsafe void OnDisable()
+    [HarmonyLib.HarmonyPatch(typeof(Container), "OnDisable")]
+    public class ContainerOnDisablePatch
+    {
+        public static void Postfix(ref Container __instance)
+        {
+            if (__instance.name.Contains("CONTAINER_InaccessibleGear"))
+            {
+#if DEBUG
+                // This is the OnDisable event that is called for each InaccessibleGearContainer.
+                // MyLogger.LogMessage("(" + __instance.DisplayName + ":" + __instance.m_InstanceID + ") Inventory=" + __instance.m_InsideContainer + ", Container=" + __instance.m_InPlayerInventory + ") CompleteSpawnFromCONSOLE event.");
+                MyLogger.LogMessage("(" + __instance.name + ":" + __instance.GetInstanceID() + ") Container OnDisable event.");
+#endif
+                // If the PingComponent exists, delete it.
+                if (__instance.gameObject.GetComponent<PingComponent>())
+                {
+#if DEBUG
+                    MyLogger.LogMessage("(" + __instance.name + ":" + __instance.GetInstanceID() + ") PingComponent exists for Lost and Found Box container.  Delete pingComponent to remove from radar.");
+#endif
+                    PingComponent.ManualDelete(__instance.gameObject.GetComponent<PingComponent>());
+                }
+
+            }
+        }
+    }
+
+    // public unsafe void OnDestroy()
+    [HarmonyLib.HarmonyPatch(typeof(Container), "OnDestroy")]
+    public class ContainerOnDestroyPatch
+    {
+        public static void Postfix(ref Container __instance)
+        {
+            if (__instance.name.Contains("CONTAINER_InaccessibleGear"))
+            {
+#if DEBUG
+                // This is the OnDestroy event that is called for each InaccessibleGearContainer.
+                // MyLogger.LogMessage("(" + __instance.DisplayName + ":" + __instance.m_InstanceID + ") Inventory=" + __instance.m_InsideContainer + ", Container=" + __instance.m_InPlayerInventory + ") CompleteSpawnFromCONSOLE event.");
+                MyLogger.LogMessage("(" + __instance.name + ":" + __instance.GetInstanceID() + ") Container OnDestroy event.");
+#endif
+                // If the PingComponent exists, delete it.  
+                if (__instance.gameObject.GetComponent<PingComponent>())
+                {
+#if DEBUG
+                    MyLogger.LogMessage("(" + __instance.name + ":" + __instance.GetInstanceID() + ") PingComponent exists for Lost and Found Box container.  Delete pingComponent to remove from radar.");
+#endif
+                    PingComponent.ManualDelete(__instance.gameObject.GetComponent<PingComponent>());
+                }
+
+            }
+        }
+    }
+
+    // public unsafe void UpdateContainer()
+    [HarmonyLib.HarmonyPatch(typeof(Container), "UpdateContainer")]
+    public class ContainerUpdateContainerPatch
+    {
+        public static void Postfix(ref Container __instance)
+        {
+            if (__instance.name.Contains("CONTAINER_InaccessibleGear"))
+            {
+#if DEBUG
+                // This is the UpdateContainer event that is called for each InaccessibleGearContainer.
+                // MyLogger.LogMessage("(" + __instance.DisplayName + ":" + __instance.m_InstanceID + ") Inventory=" + __instance.m_InsideContainer + ", Container=" + __instance.m_InPlayerInventory + ") CompleteSpawnFromCONSOLE event.");
+                // MyLogger.LogMessage("(" + __instance.name + ":" + __instance.GetInstanceID() + ") Container UpdateContainer event.");
+#endif
+                // The Lost and Found Box is active and updating.  Need to add the pingComponent (if not present) to the Lost and Found Box so it shows up on the radar
+                if (!__instance.gameObject.GetComponent<PingComponent>())
+                {
+#if DEBUG
+                    MyLogger.LogMessage("See Lost and Found Box container (" + __instance.name + ":" + __instance.GetInstanceID() + ") at " + __instance.transform.position + 
+                        " with " + __instance.m_Items.Count + " items and adding PingComponent to object to display on radar.");
+#endif
+                    __instance.gameObject.AddComponent<PingComponent>().Initialize(PingManager.AnimalType.LostAndFoundBox);   // Add the PingComponent for the LostAndFoundBox
+                }
+            }
+        }
+    }
+
+    //    //     public unsafe void Initialize()
+    //    [HarmonyLib.HarmonyPatch(typeof(InaccessibleGearContainer), "Initialize")]
+    //    public class InaccessibleGearContainerInitializePatch
+    //    {
+    //        public static void Postfix(ref InaccessibleGearContainer __instance)
+    //        {
+    //            // if (__instance.gameObject.name.Contains("Arrow") || __instance.gameObject.name.Contains("Coal"))
+    //            if (true)
+    //            {
+    //#if DEBUG
+    //                // This is the UpdateVisibilityForAll event that is called for each InaccessibleGearContainer.
+    //                // MyLogger.LogMessage("(" + __instance.DisplayName + ":" + __instance.m_InstanceID + ") Inventory=" + __instance.m_InsideContainer + ", Container=" + __instance.m_InPlayerInventory + ") CompleteSpawnFromCONSOLE event.");
+    //                MyLogger.LogMessage("(" + __instance.name + ":" + __instance.GetInstanceID() + ") InaccessibleGearContainer Initialize event.");
+    //#endif
+    //            }
+    //        }
+    //    }
+
+    //    //     public unsafe static void UpdateVisibilityForAll()
+    //    [HarmonyLib.HarmonyPatch(typeof(InaccessibleGearContainer), "UpdateVisibilityForAll")]
+    //    public class InaccessibleGearContainerUpdateVisibilityForAllPatch
+    //    {
+    //        public static void Postfix(ref InaccessibleGearContainer __instance)
+    //        {
+    //            // if (__instance.gameObject.name.Contains("Arrow") || __instance.gameObject.name.Contains("Coal"))
+    //            if (true)
+    //            {
+    //#if DEBUG
+    //                // This is the UpdateVisibilityForAll event that is called for each InaccessibleGearContainer.
+    //                // MyLogger.LogMessage("(" + __instance.DisplayName + ":" + __instance.m_InstanceID + ") Inventory=" + __instance.m_InsideContainer + ", Container=" + __instance.m_InPlayerInventory + ") CompleteSpawnFromCONSOLE event.");
+    //                MyLogger.LogMessage("(" + __instance.name + ":" + __instance.GetInstanceID() + ") InaccessibleGearContainer UpdateVisibilityForAll event.");
+    //#endif
+    //            }
+    //        }
+    //    }
+
+    //    //     public unsafe static void InitializeAllForCurrentScene()
+    //    [HarmonyLib.HarmonyPatch(typeof(InaccessibleGearContainer), "InitializeAllForCurrentScene")]
+    //    public class InaccessibleGearContainerInitializeAllForCurrentScenePatch
+    //    {
+    //        public static void Postfix(ref InaccessibleGearContainer __instance)
+    //        {
+    //            // if (__instance.gameObject.name.Contains("Arrow") || __instance.gameObject.name.Contains("Coal"))
+    //            if (true)
+    //            {
+    //#if DEBUG
+    //                // This is the InitializeAllForCurrentScene event that is called for each InaccessibleGearContainer.
+    //                // MyLogger.LogMessage("(" + __instance.DisplayName + ":" + __instance.m_InstanceID + ") Inventory=" + __instance.m_InsideContainer + ", Container=" + __instance.m_InPlayerInventory + ") CompleteSpawnFromCONSOLE event.");
+    //                MyLogger.LogMessage("(" + __instance.name + ":" + __instance.GetInstanceID() + ") InaccessibleGearContainer InitializeAllForCurrentScene event.");
+    //#endif
+    //            }
+    //        }
+    //    }
+
+    //    [HarmonyLib.HarmonyPatch(typeof(RadialObjectSpawner), "Awake")]
+    //    public class RadialObjectSpawnerAwakePatch
+    //    {
+    //        public static void Postfix(ref RadialObjectSpawner __instance)
+    //        {
+    //            // if (__instance.gameObject.name.Contains("Arrow") || __instance.gameObject.name.Contains("Coal"))
+    //            if (true)
+    //            {
+    //#if DEBUG
+    //                // This is the Awake event that is called for each RadialObjectSpawner.
+    //                // MyLogger.LogMessage("(" + __instance.DisplayName + ":" + __instance.m_InstanceID + ") Inventory=" + __instance.m_InsideContainer + ", Container=" + __instance.m_InPlayerInventory + ") CompleteSpawnFromCONSOLE event.");
+    //                MyLogger.LogMessage("(" + __instance.name + ":" + __instance.GetInstanceID() + ") RadialObjectSpawner Awake event.");
+    //#endif
+    //            }
+    //        }
+    //    }
+
+    //    [HarmonyLib.HarmonyPatch(typeof(RadialObjectSpawner), "Start")]
+    //    public class RadialObjectSpawnerStartPatch
+    //    {
+    //        public static void Postfix(ref RadialObjectSpawner __instance)
+    //        {
+    //            // if (__instance.gameObject.name.Contains("Arrow") || __instance.gameObject.name.Contains("Coal"))
+    //            if (true)
+    //            {
+    //#if DEBUG
+    //                // This is the Start event that is called for each RadialObjectSpawner.
+    //                // MyLogger.LogMessage("(" + __instance.DisplayName + ":" + __instance.m_InstanceID + ") Inventory=" + __instance.m_InsideContainer + ", Container=" + __instance.m_InPlayerInventory + ") CompleteSpawnFromCONSOLE event.");
+    //                MyLogger.LogMessage("(" + __instance.name + ":" + __instance.GetInstanceID() + ") RadialObjectSpawner Start event.");
+    //#endif
+    //            }
+    //        }
+    //    }
+
+    //    [HarmonyLib.HarmonyPatch(typeof(RadialObjectSpawner), "OnDestroy")]
+    //    public class RadialObjectSpawnerOnDestroyPatch
+    //    {
+    //        public static void Postfix(ref RadialObjectSpawner __instance)
+    //        {
+    //            // if (__instance.gameObject.name.Contains("Arrow") || __instance.gameObject.name.Contains("Coal"))
+    //            if (true)
+    //            {
+    //#if DEBUG
+    //                // This is the OnDestroy event that is called for each RadialObjectSpawner.
+    //                // MyLogger.LogMessage("(" + __instance.DisplayName + ":" + __instance.m_InstanceID + ") Inventory=" + __instance.m_InsideContainer + ", Container=" + __instance.m_InPlayerInventory + ") CompleteSpawnFromCONSOLE event.");
+    //                MyLogger.LogMessage("(" + __instance.name + ":" + __instance.GetInstanceID() + ") RadialObjectSpawner OnDestroy event.");
+    //#endif
+    //            }
+    //        }
+    //    }
+
+    //    // public unsafe void ReleaseSpawnedObjectsToPool()
+    //    [HarmonyLib.HarmonyPatch(typeof(RadialObjectSpawner), "ReleaseSpawnedObjectsToPool")]
+    //    public class RadialObjectReleaseSpawnedObjectsToPoolPatch
+    //    {
+    //        public static void Postfix(ref RadialObjectSpawner __instance)
+    //        {
+    //            // if (__instance.gameObject.name.Contains("Arrow") || __instance.gameObject.name.Contains("Coal"))
+    //            if (true)
+    //            {
+    //#if DEBUG
+    //                // This is the OnDestroy event that is called for each RadialObjectSpawner.
+    //                // MyLogger.LogMessage("(" + __instance.DisplayName + ":" + __instance.m_InstanceID + ") Inventory=" + __instance.m_InsideContainer + ", Container=" + __instance.m_InPlayerInventory + ") CompleteSpawnFromCONSOLE event.");
+    //                MyLogger.LogMessage("(" + __instance.name + ":" + __instance.GetInstanceID() + ") RadialObjectSpawner ReleaseSpawnedObjectsToPool event.");
+    //#endif
+    //            }
+    //        }
+    //    }
+
+    //    // public unsafe void SpawnAttemptAllNoVisChecks()
+    //    [HarmonyLib.HarmonyPatch(typeof(RadialObjectSpawner), "SpawnAttemptAllNoVisChecks")]
+    //    public class RadialObjectSpawnAttemptAllNoVisChecksPatch
+    //    {
+    //        public static void Postfix(ref RadialObjectSpawner __instance)
+    //        {
+    //            // if (__instance.gameObject.name.Contains("Arrow") || __instance.gameObject.name.Contains("Coal"))
+    //            if (true)
+    //            {
+    //#if DEBUG
+    //                // This is the OnDestroy event that is called for each RadialObjectSpawner.
+    //                // MyLogger.LogMessage("(" + __instance.DisplayName + ":" + __instance.m_InstanceID + ") Inventory=" + __instance.m_InsideContainer + ", Container=" + __instance.m_InPlayerInventory + ") CompleteSpawnFromCONSOLE event.");
+    //                MyLogger.LogMessage("(" + __instance.name + ":" + __instance.GetInstanceID() + ") RadialObjectSpawner SpawnAttemptAllNoVisChecks event.");
+    //#endif
+    //            }
+    //        }
+    //    }
+    //    // RadialSpawnManager is the object that manages the radial spawns of objects.  For example, it manages the spawning of Coal.  The RadialObjectSpawner may be where each object is spawned.
+    //    [HarmonyLib.HarmonyPatch(typeof(RadialSpawnManager), "Start")]
+    //    public class RadialSpawnManagerStartPatch
+    //    {
+    //        public static void Postfix(ref RadialSpawnManager __instance)
+    //        {
+    //            // if (__instance.gameObject.name.Contains("Arrow") || __instance.gameObject.name.Contains("Coal"))
+    //            if (true)
+    //            {
+    //#if DEBUG
+    //                // This is the Update event that is called for each RadialSpawnManager.
+    //                // MyLogger.LogMessage("(" + __instance.DisplayName + ":" + __instance.m_InstanceID + ") Inventory=" + __instance.m_InsideContainer + ", Container=" + __instance.m_InPlayerInventory + ") CompleteSpawnFromCONSOLE event.");
+    //                MyLogger.LogMessage("(" + __instance.name + ":" + __instance.GetInstanceID() + ") RadialSpawnManager Start event.");
+    //#endif
+    //            }
+    //        }
+    //    }
+
+    //    //    public unsafe void Update()
+    //    [HarmonyLib.HarmonyPatch(typeof(RadialSpawnManager), "Update")]
+    //    public class RadialSpawnManagerUpdatePatch
+    //    {
+    //        public static void Postfix(ref RadialSpawnManager __instance)
+    //        {
+    //            // if (__instance.gameObject.name.Contains("Arrow") || __instance.gameObject.name.Contains("Coal"))
+    //            if (true)
+    //            {
+    //#if DEBUG
+    //                // This is the Update event that is called for each RadialSpawnManager.
+    //                // MyLogger.LogMessage("(" + __instance.DisplayName + ":" + __instance.m_InstanceID + ") Inventory=" + __instance.m_InsideContainer + ", Container=" + __instance.m_InPlayerInventory + ") CompleteSpawnFromCONSOLE event.");
+    //                MyLogger.LogMessage("(" + __instance.name + ":" + __instance.GetInstanceID() + ") RadialSpawnManager Update event.");
+    //#endif
+    //                RadialObjectSpawner[] ros = __instance.GetComponentsInChildren<RadialObjectSpawner>(true);
+    //                foreach (RadialObjectSpawner ro in ros)
+    //                {
+    //                    MyLogger.LogMessage("  (" + __instance.name + ":" + __instance.GetInstanceID() + ") RadialSpawnManager Update event.  RadialObjectSpawner=" + ro.name);
+    //                    //MyLogger.LogMessage("(" + __instance.name + ":" + __instance.GetInstanceID() + ") RadialSpawnManager Update event.  RadialObjectSpawner=" + ro.name + " m_InsideContainer=" + ro.m_InsideContainer);
+    //                    //MyLogger.LogMessage("(" + __instance.name + ":" + __instance.GetInstanceID() + ") RadialSpawnManager Update event.  RadialObjectSpawner=" + ro.name + " m_InPlayerInventory=" + ro.m_InPlayerInventory);
+    //                }
+    //            }
+    //        }
+    //    }
+
+    //    // public unsafe void UpdateRadialSpawnObjectsActiveList()
+    //    [HarmonyLib.HarmonyPatch(typeof(RadialSpawnManager), "UpdateRadialSpawnObjectsActiveList")]
+    //    public class RadialSpawnManagerUpdateRadialSpawnObjectsActiveListPatch
+    //    {
+    //        public static void Postfix(ref RadialSpawnManager __instance)
+    //        {
+    //            // if (__instance.gameObject.name.Contains("Arrow") || __instance.gameObject.name.Contains("Coal"))
+    //            if (true)
+    //            {
+    //#if DEBUG
+    //                // This is the UpdateRadialSpawnObjectsActiveList event that is called for each RadialSpawnManager.
+    //                // MyLogger.LogMessage("(" + __instance.DisplayName + ":" + __instance.m_InstanceID + ") Inventory=" + __instance.m_InsideContainer + ", Container=" + __instance.m_InPlayerInventory + ") CompleteSpawnFromCONSOLE event.");
+    //                MyLogger.LogMessage("(" + __instance.name + ":" + __instance.GetInstanceID() + ") RadialSpawnManager UpdateRadialSpawnObjectsActiveList event.");
+    //#endif
+    //            }
+    //        }
+    //    }
+
+    //    [HarmonyLib.HarmonyPatch(typeof(GearItem), "CompleteSpawnFromCONSOLE")]
+    //    public class GearItemCompleteSpawnFromCONSOLEPatch
+    //    {
+    //        public static void Postfix(ref GearItem __instance)
+    //        {
+    //            if (__instance.gameObject.name.Contains("Arrow") || __instance.gameObject.name.Contains("Coal"))
+    //            {
+    //#if DEBUG
+    //                // This is the OnWield event that is called for each GearItem.  
+    //                MyLogger.LogMessage("(" + __instance.DisplayName + ":" + __instance.m_InstanceID + ") Inventory=" + __instance.m_InsideContainer + ", Container=" + __instance.m_InPlayerInventory + ") CompleteSpawnFromCONSOLE event.");
+    //#endif
+    //            }
+    //        }
+    //    }
+
+    //    [HarmonyLib.HarmonyPatch(typeof(GearItem), "ForceGUIDSetup")]
+    //    public class GearItemForceGUIDSetupPatch
+    //    {
+    //        public static void Postfix(ref GearItem __instance)
+    //        {
+    //            if (__instance.gameObject.name.Contains("Arrow") || __instance.gameObject.name.Contains("Coal"))
+    //            {
+    //#if DEBUG
+    //                // This is the OnWield event that is called for each GearItem.  
+    //                MyLogger.LogMessage("(" + __instance.DisplayName + ":" + __instance.m_InstanceID + ") Inventory=" + __instance.m_InsideContainer + ", Container=" + __instance.m_InPlayerInventory + ") ForceGUIDSetup event.");
+    //#endif
+    //            }
+    //        }
+    //    }
+
+    //    //     public unsafe virtual void InitializeInteraction()
+    //    [HarmonyLib.HarmonyPatch(typeof(GearItem), "InitializeInteraction")]
+    //    public class GearItemInitializeInteractionPatch
+    //    {
+    //        public static void Postfix(ref GearItem __instance)
+    //        {
+    //            if (__instance.gameObject.name.Contains("Arrow") || __instance.gameObject.name.Contains("Coal"))
+    //            {
+    //#if DEBUG
+    //                // This is the OnWield event that is called for each GearItem.  
+    //                MyLogger.LogMessage("(" + __instance.DisplayName + ":" + __instance.m_InstanceID + ") Inventory=" + __instance.m_InsideContainer + ", Container=" + __instance.m_InPlayerInventory + ") InitializeInteraction event.");
+    //#endif
+    //            }
+    //        }
+    //    }
+
+    //    //     public unsafe virtual void UpdateInteraction()
+    //    [HarmonyLib.HarmonyPatch(typeof(GearItem), "UpdateInteraction")]
+    //    public class GearItemUpdateInteractionPatch
+    //    {
+    //        public static void Postfix(ref GearItem __instance)
+    //        {
+    //            if (__instance.gameObject.name.Contains("Arrow") || __instance.gameObject.name.Contains("Coal"))
+    //            {
+    //#if DEBUG
+    //                // This is the OnWield event that is called for each GearItem.  
+    //                MyLogger.LogMessage("(" + __instance.DisplayName + ":" + __instance.m_InstanceID + ") Inventory=" + __instance.m_InsideContainer + ", Container=" + __instance.m_InPlayerInventory + ") UpdateInteraction event.");
+    //#endif
+    //            }
+    //        }
+    //    }
+
+    //    [HarmonyLib.HarmonyPatch(typeof(GearItem), "Awake")]
+    //    public class GearItemAwakePatch
+    //    {
+    //        public static void Postfix(ref GearItem __instance)
+    //        {
+    //            if (__instance.gameObject.name.Contains("Arrow") || __instance.gameObject.name.Contains("Coal"))
+    //            {
+    //#if DEBUG
+    //                // This is the Awake event that is called for each GearItem.  
+    //                // MyLogger.LogMessage("(" + __instance.DisplayName + ":" + __instance.m_InstanceID + ") Inventory=" + __instance.m_InsideContainer + ", Container=" + __instance.m_InPlayerInventory + ") Awake event.");
+    //#endif
+    //            }
+    //        }
+    //    }
+
+    //    [HarmonyLib.HarmonyPatch(typeof(GearItem), "OnBeginUnwield")]
+    //    public class GearItemOnBeginUnwieldPatch
+    //    {
+    //        public static void Postfix(ref GearItem __instance)
+    //        {
+    //            if (__instance.gameObject.name.Contains("Arrow") || __instance.gameObject.name.Contains("Coal"))
+    //            {
+    //#if DEBUG
+    //                // This is the OnWield event that is called for each GearItem.  
+    //                MyLogger.LogMessage("(" + __instance.DisplayName + ":" + __instance.m_InstanceID + ") Inventory=" + __instance.m_InsideContainer + ", Container=" + __instance.m_InPlayerInventory + ") OnBeginUnwield event.");
+    //#endif
+    //            }
+    //        }
+    //    }
+
+    //    [HarmonyLib.HarmonyPatch(typeof(GearItem), "OnUnwieldComplete")]
+    //    public class GearItemOnUnwieldCompletePatch
+    //    {
+    //        public static void Postfix(ref GearItem __instance)
+    //        {
+    //            if (__instance.gameObject.name.Contains("Arrow") || __instance.gameObject.name.Contains("Coal"))
+    //            {
+    //#if DEBUG
+    //                // This is the OnWield event that is called for each GearItem.  
+    //                MyLogger.LogMessage("(" + __instance.DisplayName + ":" + __instance.m_InstanceID + ") Inventory=" + __instance.m_InsideContainer + ", Container=" + __instance.m_InPlayerInventory + ") OnUnwieldComplete event.");
+    //#endif
+    //            }
+    //        }
+    //    }
+
+    //    [HarmonyLib.HarmonyPatch(typeof(GearItem), "ManualStart")]
+    //    public class GearItemManualStartPatch
+    //    {
+    //        public static void Postfix(ref GearItem __instance)
+    //        {
+    //            if (__instance.gameObject.name.Contains("Arrow") || __instance.gameObject.name.Contains("Coal"))
+    //            {
+    //#if DEBUG
+    //                // This is the ManualStart event that is called for each GearItem.  
+    //                MyLogger.LogMessage("(" + __instance.DisplayName + ":" + __instance.m_InstanceID + ") Inventory=" + __instance.m_InsideContainer + ", Container=" + __instance.m_InPlayerInventory + ") ManualStart event.");
+    //#endif
+    //            }
+    //        }
+    //    }
+
+    //    //     public unsafe void CacheComponents()
+    //    [HarmonyLib.HarmonyPatch(typeof(GearItem), "CacheComponents")]
+    //    public class GearItemCacheComponentsPatch
+    //    {
+    //        public static void Postfix(ref GearItem __instance)
+    //        {
+    //            // if (__instance.gameObject.name.Contains("Arrow") || __instance.gameObject.name.Contains("Coal"))
+    //            if (__instance.gameObject.name.Contains("Coal"))
+    //            {
+    //#if DEBUG
+    //                // This is the CacheComponents event that is called for each GearItem.  Lot of data!
+    //                MyLogger.LogMessage("(" + __instance.DisplayName + ":" + __instance.m_InstanceID + ") Inventory=" + __instance.m_InsideContainer + ", Container=" + __instance.m_InPlayerInventory + ") CacheComponents event.");
+    //#endif
+    //            }
+    //        }
+    //    }
+
+    //    // public unsafe void AddGearToContainer(GearItem containedGearItem, GearItem newItem)
+    //    // Never see anything in the log for this event.  Not sure what it does.
+    //    [HarmonyLib.HarmonyPatch(typeof(GearItem), "AddGearToContainer")]
+    //    public class GearItemAddGearToContainerPatch
+    //    {
+    //        public static void Postfix(ref GearItem __instance, GearItem newItem)
+    //        {
+    //            if (__instance.gameObject.name.Contains("Arrow") || __instance.gameObject.name.Contains("Coal"))
+    //            {
+    //#if DEBUG
+    //                // This is the AddGearToContainer event that is called for each GearItem.  
+    //                MyLogger.LogMessage("(" + __instance.DisplayName + ":" + __instance.m_InstanceID + ") newItem=" + newItem.name + " AddGearToContainer event.");
+    //#endif
+    //            }
+    //        }
+    //    }
+
+    //    //     public unsafe void RemoveGearFromContainer(GearItem gi)
+    //    // Never see anything in the log for this event.  Not sure what it does.
+    //    [HarmonyLib.HarmonyPatch(typeof(GearItem), "RemoveGearFromContainer")]
+    //    public class GearItemRemoveGearFromContainerPatch
+    //    {
+    //        public static void Postfix(ref GearItem __instance)
+    //        {
+    //            if (__instance.gameObject.name.Contains("Arrow") || __instance.gameObject.name.Contains("Coal"))
+    //            {
+    //#if DEBUG
+    //                // This is the RemoveGearFromContainer event that is called for each GearItem.  
+    //                MyLogger.LogMessage("(" + __instance.DisplayName + ":" + __instance.m_InstanceID + ") RemoveGearFromContainer event.");
+    //#endif
+    //            }
+    //        }
+    //    }
+
+    // The Illusion — 3:24 PM
+    //There is an event system for this. Though I dont know if those events are actually used or not. Unity Explorer will tell you if they are. Other than that, look at the PlayerManager.AddStackedItem or something along those lines
+
+    //    public unsafe bool TryAddToExistingStackable(GearItem gearToAdd, float normalizedCondition, int numUnits, out GearItem existingGearItem)
+
+    [HarmonyLib.HarmonyPatch(typeof(PlayerManager), nameof(PlayerManager.TryAddToExistingStackable), [typeof(GearItem), typeof(float), typeof(int), typeof(GearItem)], [ArgumentType.Normal, ArgumentType.Normal, ArgumentType.Normal, ArgumentType.Out])]
+    public class PlayerManagerTryAddToExistingStackable
+    {
+        public static bool Prefix(GearItem gearToAdd, float normalizedCondition, int numUnits, GearItem existingGearItem)
+        {
+            // This should probably just be for Coal.  The arrow stuff seems to play nicely on the radar.  But leave Arrow in for now.
+            if (gearToAdd.gameObject.name.Contains("Arrow") || gearToAdd.gameObject.name.Contains("Coal") || PingComponent.IsRawFish(gearToAdd))
+            {
+#if DEBUG
+                MyLogger.LogMessage("(" + gearToAdd.DisplayName + ":" + gearToAdd.m_InstanceID + ") TryAddToExistingStackable Prefix(GearItem gearToAdd, float normalizedCondition, int numUnits, out GearItem existingGearItem) event.");
+#endif
+                // Can we check for a PingComponent component here?
+                if (gearToAdd.gameObject.GetComponent<PingComponent>() != null)     // The gear to be added has a PingComponent and it's going into inventory or a container.  So need to delete the PingComponent so it does not display on radar.
+                {
+#if DEBUG
+                    MyLogger.LogMessage("   (" + gearToAdd.gameObject.name + ":" + gearToAdd.gameObject.GetInstanceID() + ") PingComponent exists for Gear item going into inventory/container.  Delete pingComponent to remove from radar.");
+#endif
+                    PingComponent.ManualDelete(gearToAdd.gameObject.GetComponent<PingComponent>()); // Delete PingComponent so it no longer shows on radar.
+                }
+
+                // if (GameManager.IsMainMenuActive()) return true;
+                // if (gearToAdd.gameObject.GetComponent<StackableItem>() != null) return true;   // Returning true... so this item can be stacked?
+                return true;   // Wild guess.  When set to false, coal does not stack in player inventory.  Let's try true.
+            }
+            return true;    //  Let's try true.
+        }
+    }
+
+    //     public unsafe bool TryAddToExistingStackable(GearItem gearToAdd, int numUnits, out GearItem existingGearItem)
+    // [HarmonyLib.HarmonyPatch(HarmonyLib.MethodType.Normal, MethodSignature.Equals   Type[] {typeof(GearItem), typeof(int), typeof(GearItem) })]
+    //    [HarmonyLib.HarmonyPatch(typeof(PlayerManager), "TryAddToExistingStackable")]
+    //    public class PlayerManagerTryAddToExistingStackablePatch
+    //    {
+    //        public static void Postfix(GearItem __instance, int numUnits, out GearItem existingGearItem)
+    //        {
+    //            if (__instance.gameObject.name.Contains("Arrow") || __instance.gameObject.name.Contains("Coal"))
+    //            {
+    //#if DEBUG
+    //                MyLogger.LogMessage("(" + __instance.DisplayName + ":" + __instance.m_InstanceID + ") TryAddToExistingStackable Postfix(GearItem __instance, int numUnits, GearItem existingGearItem)  event.");
+    //#endif
+    //            }
+    //            existingGearItem = __instance;  // This is not correct.  We need to return the GearItem that was passed in.
+    //        }
+    //    }
+
+    //    //         public unsafe GearItem AddItemToPlayerInventory(GearItem gi, bool trackItemLooted = true, bool enableNotificationFlag = false)
+    //    [HarmonyLib.HarmonyPatch(typeof(PlayerManager), "AddItemToPlayerInventory")]
+    //    public class PlayerManagerAddItemToPlayerInventoryePatch
+    //    {
+    //        public static void Postfix(GearItem __instance, bool trackItemLooted = true, bool enableNotificationFlag = false)
+    //        {
+    //            if (__instance.gameObject.name.Contains("Arrow") || __instance.gameObject.name.Contains("Coal"))
+    //            {
+    //#if DEBUG
+    //                // This is the AddItemToPlayerInventory event that is called for each GearItem.  And it returns a GearItem.  Hmmm...  
+    //                MyLogger.LogMessage("(" + __instance.DisplayName + ":" + __instance.m_InstanceID + ") AddItemToPlayerInventory event.");
+    //#endif
+    //            }
+    //        }
+    //    }
+
+
+    // We are relying on the ManualUpdate event to catch GearItems needing to be tracked or not (instantiate a pingComponent or delete an existing pingComponent.
+    // In testing, sometimes an Arrow or Coal on the radar becomes "stuck" at the origin (center) that never updates.
+    // Hypothesis: This happens after picking up an Arrow or Coal from the ground.  It goes into inventory (Arrow GearItem object is deleted but Coal is not) but
     // the associated radar icon is not deleted.  Suspect pingComponent does not exist.  But the radar is not cleared of the arrow that was picked up and went into
     // inventory.
 
@@ -134,52 +694,49 @@ namespace MotionTracker
     {
         public static void Postfix(ref GearItem __instance)
         {
-            if (__instance.gameObject.name.Contains("Arrow"))
+            if (__instance.gameObject.name.Contains("Arrow") 
+                || __instance.gameObject.name.Contains("Coal") 
+                //|| __instance.gameObject.name.Contains("RawCohoSalmon")
+                || PingComponent.IsRawFish(__instance)
+                )
             {
 #if DEBUG
-                // MyLogger.LogMessage("(" + __instance.DisplayName + ":" + __instance.m_InstanceID + ") inventory=" + __instance.m_InPlayerInventory + ", container=" + __instance.m_InsideContainer + ") manualupdate event.");
+                //MyLogger.LogMessage("(" + __instance.DisplayName + ":" + __instance.m_InstanceID + ") inventory=" + __instance.m_InPlayerInventory + ", container=" + __instance.m_InsideContainer + ") manualupdate event.");
 #endif
-                
                 if (__instance.m_InsideContainer)
                 {
-                    #if DEBUG
-                        // MyLogger.LogMessage(" (" + __instance.DisplayName + ":" + __instance.m_InstanceID + ") is inside a container.");
-                    #endif
-
+#if DEBUG
+                    //MyLogger.LogMessage(" (" + __instance.DisplayName + ":" + __instance.m_InstanceID + ") is inside a container.");
+#endif
                     if (__instance.gameObject)
                     {
-                        #if DEBUG
-                            // MyLogger.LogMessage("  (" + __instance.DisplayName + ":" + __instance.m_InstanceID + ") gameObject exists.");
-                        #endif
-
+#if DEBUG
+                        //MyLogger.LogMessage("  (" + __instance.DisplayName + ":" + __instance.m_InstanceID + ") gameObject exists.");
+#endif
                         if (__instance.gameObject.GetComponent<PingComponent>())
                         {
-                            #if DEBUG
-                                MyLogger.LogMessage("   (" + __instance.name + ":" + __instance.m_InstanceID + ") PingComponent exists for arrow in container.  Delete pingComponent to remove from radar.");
-                            #endif
-
+#if DEBUG
+                            //MyLogger.LogMessage("   (" + __instance.name + ":" + __instance.m_InstanceID + ") PingComponent exists for Gear item in container.  Delete pingComponent to remove from radar.");
+#endif
                             PingComponent.ManualDelete(__instance.gameObject.GetComponent<PingComponent>());
                         }
                     }
                 }
                 else if (__instance.m_InPlayerInventory)
                 {
-                    #if DEBUG
-                        // MyLogger.LogMessage(" (" + __instance.DisplayName + ":" + __instance.m_InstanceID + ") is in player inventory.");
-                    #endif
-
+#if DEBUG
+                    //MyLogger.LogMessage(" (" + __instance.DisplayName + ":" + __instance.m_InstanceID + ") is in player inventory.");
+#endif
                     if (__instance.gameObject)
                     {
-                        #if DEBUG
-                            // MyLogger.LogMessage("  (" + __instance.DisplayName + ":" + __instance.m_InstanceID + ") gameObject exists.");
-                        #endif
-
+#if DEBUG
+                        //MyLogger.LogMessage("  (" + __instance.DisplayName + ":" + __instance.m_InstanceID + ") gameObject exists.");
+#endif
                         if (__instance.gameObject.GetComponent<PingComponent>())
                         {
-                        #if DEBUG
-                            MyLogger.LogMessage("   (" + __instance.name + ":" + __instance.m_InstanceID + ") PingComponent exists for arrow in inventory.  Delete pingComponent to remove from radar.");
-                        #endif
-
+#if DEBUG
+                            //MyLogger.LogMessage("   (" + __instance.name + ":" + __instance.m_InstanceID + ") PingComponent exists for Gear item in inventory.  Delete pingComponent to remove from radar.");
+#endif
                             PingComponent.ManualDelete(__instance.gameObject.GetComponent<PingComponent>());
                         }
                     }
@@ -188,17 +745,31 @@ namespace MotionTracker
                 {
                     if (!__instance.gameObject.GetComponent<PingComponent>())
                     {
-                        // Arrow is not in inventory or container and does not have a PingComponent
-                        #if DEBUG
-                            MyLogger.LogMessage("See some kind of wild Arrow (" + __instance.name + ":" + __instance.m_InstanceID + ") and adding PingComponent to object to display on radar.");
-                        #endif
-
-                        __instance.gameObject.AddComponent<PingComponent>().Initialize(PingManager.AnimalType.Arrow);   // Add the PingComponent for the arrow
+                        // Gear item (i.e. Arrow) is not in inventory or container and does not have a PingComponent
+#if DEBUG
+                        //MyLogger.LogMessage("See some kind of wild Gear item (" + __instance.name + ":" + __instance.m_InstanceID + ") at " + __instance.transform.position + " and adding PingComponent to object to display on radar.");
+#endif
+                        if (__instance.gameObject.name.Contains("Arrow"))
+                        {
+                            __instance.gameObject.AddComponent<PingComponent>().Initialize(PingManager.AnimalType.Arrow);   // Add the PingComponent for the arrow
+                        }
+                        else if (__instance.gameObject.name.Contains("Coal"))
+                        {
+                            __instance.gameObject.AddComponent<PingComponent>().Initialize(PingManager.AnimalType.Coal);   // Add the PingComponent for the coal
+                        }
+                        else if (PingComponent.IsRawFish(__instance))  // Need an IsRawFish() bool function. 
+                        {
+                            __instance.gameObject.AddComponent<PingComponent>().Initialize(PingManager.AnimalType.RawFish);   // Add the PingComponent for a RawFish
+                        }
+                        //else if (__instance.gameObject.name.Contains("LostAndFound"))   // Nope.  Not a GearItem.  CONTAINER_InaccessibleGear? Il2Cpp.InaccessibleGearContainer?
+                        //{
+                        //    __instance.gameObject.AddComponent<PingComponent>().Initialize(PingManager.AnimalType.LostAndFoundBox);   // Add the PingComponent for the LostAndFoundBox
+                        //}
                         __instance.gameObject.GetComponent<PingComponent>().attachedGearItem = __instance;              // Pointer to this GearItem object.
                     }
 
                 }
-            }   // Arrow
+            }   // Arrow, Coal, or other tracked Gear items.
 
         }
     }
@@ -209,17 +780,32 @@ namespace MotionTracker
     { 
         public static void Postfix(ref GearItem __instance)
         {
+#if DEBUG
+            if (__instance.gameObject.name.Contains("Arrow") || __instance.gameObject.name.Contains("Coal") || PingComponent.IsRawFish(__instance))
+            {
+                MyLogger.LogMessage("(" + __instance.DisplayName + ":" + __instance.m_InstanceID + ") OnDestroy event.");
+            }
+#endif
+
             if (__instance.gameObject.GetComponent<PingComponent>())
             {
-                #if DEBUG
-                    MyLogger.LogMessage("(" + __instance.DisplayName + ":" + __instance.m_InstanceID + ") OnDestroy event.");
-                #endif
+#if DEBUG
+                if (__instance.gameObject.name.Contains("Arrow") || __instance.gameObject.name.Contains("Coal") || PingComponent.IsRawFish(__instance))
+                {
+                    MyLogger.LogMessage("(" + __instance.DisplayName + ":" + __instance.m_InstanceID + ") PingComponent exists.");
+                }
+#endif
 
                 PingComponent.ManualDelete(__instance.gameObject.GetComponent<PingComponent>());
             }
             else
             {
-                // MyLogger.LogMessage("No PingComponent to delete."); // Lot of logged data
+#if DEBUG
+                if (__instance.gameObject.name.Contains("Arrow") || __instance.gameObject.name.Contains("Coal") || PingComponent.IsRawFish(__instance))
+                {
+                    //MyLogger.LogMessage("No PingComponent to delete."); // Lot of logged data so we limit this to Arrow and Coal.
+                }
+#endif
             }
         }
     }
@@ -236,7 +822,7 @@ namespace MotionTracker
             if (__instance.m_CurrentMode == AiMode.Dead || __instance.m_CurrentMode == AiMode.Disabled || __instance.m_CurrentMode == AiMode.None)
             {
 #if DEBUG
-                MyLogger.LogMessage("(" + __instance.name + ":" + __instance.GetInstanceID() + ") AiMode dead, disabled, or none.  No processing.");
+                //MyLogger.LogMessage("(" + __instance.name + ":" + __instance.GetInstanceID() + ") AiMode dead, disabled, or none.  No processing.");
 #endif
                 return;
             }
@@ -306,8 +892,8 @@ namespace MotionTracker
         {
             __instance.gameObject.AddComponent<PingComponent>().Initialize(PingManager.AnimalType.Crow);        // Hmmm... is this the right place to add the PingComponent?
 #if DEBUG
-            MyLogger.LogMessage("FlockChild Start event. FlockChild:ID:Position (" + __instance.name + ":" + __instance.GetInstanceID() + ":" + __instance.transform.position + ") " +
-                                "GameObject:ID:Position (" + __instance.gameObject.name + ":" + __instance.gameObject.GetInstanceID() + ":" + __instance.gameObject.transform.position + ")" );
+            //MyLogger.LogMessage("FlockChild Start event. FlockChild:ID:Position (" + __instance.name + ":" + __instance.GetInstanceID() + ":" + __instance.transform.position + ") " +
+            //                    "GameObject:ID:Position (" + __instance.gameObject.name + ":" + __instance.gameObject.GetInstanceID() + ":" + __instance.gameObject.transform.position + ")" );
 #endif
         }
     }
@@ -315,7 +901,7 @@ namespace MotionTracker
     [HarmonyLib.HarmonyPatch(typeof(Il2Cpp.FlockChild), "Update")]
     public class FlockUpdatePatch
     {
-        // public static void Postfix(ref BaseAi __instance)
+        // public unsafe virtual void Update()
         public static void Postfix(ref FlockChild __instance)
         {
             //__instance.gameObject.AddComponent<PingComponent>().Initialize(PingManager.AnimalType.Crow);
@@ -377,10 +963,9 @@ namespace MotionTracker
         public static void Postfix(ref FlockController __instance)
         {
 #if DEBUG
-            // MyLogger.LogMessage("(" + __instance.name + ":" + __instance.GetInstanceID() + ") FlockController Start event.");
-            MyLogger.LogMessage("FlockController:ID (" + __instance.name + ":" + __instance.GetInstanceID() + ") " +
-                                "GameObject:ID (" + __instance.gameObject.name + ":" + __instance.gameObject.GetInstanceID() + ")" +
-                                " FlockController Start event.");
+            //MyLogger.LogMessage("FlockController:ID (" + __instance.name + ":" + __instance.GetInstanceID() + ") " +
+            //                    "GameObject:ID (" + __instance.gameObject.name + ":" + __instance.gameObject.GetInstanceID() + ")" +
+            //                    " FlockController Start event.");
 
 #endif
         }
@@ -402,28 +987,28 @@ namespace MotionTracker
     [HarmonyLib.HarmonyPatch(typeof(Il2Cpp.FlockController), "destroyBirds")]
     public class FlockController_destroyBirds_Patch
     {
-        // public static void Postfix(ref BaseAi __instance)
+        // public unsafe virtual void destroyBirds()
         public static void Postfix(ref FlockController __instance)
         {
 #if DEBUG
-            MyLogger.LogMessage("(" + __instance.name + ":" + __instance.GetInstanceID() + ") FlockController destroyBirds event.");
+            //MyLogger.LogMessage("(" + __instance.name + ":" + __instance.GetInstanceID() + ") FlockController destroyBirds event.");
 #endif
             PingComponent.ManualDelete(__instance.gameObject.GetComponent<PingComponent>());
         }
     }
 
-    [HarmonyLib.HarmonyPatch(typeof(Il2Cpp.FlockController), "OnDrawGizmos")]
-    public class FlockController_OnDrawGizmos_Patch
-    {
-        // public static void Postfix(ref BaseAi __instance)
-        public static void Postfix(ref FlockController __instance)
-        {
-#if DEBUG
-            MyLogger.LogMessage("(" + __instance.name + ":" + __instance.GetInstanceID() + ") FlockController OnDrawGizmos event.");
-#endif
+//    [HarmonyLib.HarmonyPatch(typeof(Il2Cpp.FlockController), "OnDrawGizmos")]
+//    public class FlockController_OnDrawGizmos_Patch
+//    {
+//        // public static void Postfix(ref BaseAi __instance)
+//        public static void Postfix(ref FlockController __instance)
+//        {
+//#if DEBUG
+//            MyLogger.LogMessage("(" + __instance.name + ":" + __instance.GetInstanceID() + ") FlockController OnDrawGizmos event.");
+//#endif
 
-        }
-    }
+//        }
+//    }
 
 
     [HarmonyLib.HarmonyPatch(typeof(BaseAi), "EnterDead")]
@@ -432,7 +1017,7 @@ namespace MotionTracker
         public static void Postfix(ref BaseAi __instance)
         {
 #if DEBUG
-            MyLogger.LogMessage("(" + __instance.name + ":" + __instance.GetInstanceID() + ") BaseAi EnterDead event.");
+            //MyLogger.LogMessage("(" + __instance.name + ":" + __instance.GetInstanceID() + ") BaseAi EnterDead event.");
 #endif
             PingComponent.ManualDelete(__instance.gameObject.GetComponent<PingComponent>());           
         }
@@ -444,22 +1029,24 @@ namespace MotionTracker
         public static void Postfix(ref BaseAi __instance)
         {
 #if DEBUG
-            MyLogger.LogMessage("(" + __instance.name + ":" + __instance.GetInstanceID() + ") BaseAi OnDisable event.");
+            //MyLogger.LogMessage("(" + __instance.name + ":" + __instance.GetInstanceID() + ") BaseAi OnDisable event.");
 #endif
             PingComponent.ManualDelete(__instance.gameObject.GetComponent<PingComponent>());
         }
     }
 
-    // Despawn not seen yet.  
+    // Despawn not seen yet.  Switch to Prefix to see if it helps show up?
     [HarmonyLib.HarmonyPatch(typeof(BaseAi), "Despawn")]
     public class DeathPatch3
     {
-        public static void Postfix(ref BaseAi __instance)
+        //     public unsafe void Despawn()
+
+        public static void Prefix(ref BaseAi __instance)
         {
-            PingComponent.ManualDelete(__instance.gameObject.GetComponent<PingComponent>());
 #if DEBUG
-            MyLogger.LogMessage("(" + __instance.name + ":" + __instance.GetInstanceID() + ") BaseAi Despawn event.");
+            //MyLogger.LogMessage("(" + __instance.name + ":" + __instance.GetInstanceID() + ") BaseAi Despawn event.");
 #endif
+            PingComponent.ManualDelete(__instance.gameObject.GetComponent<PingComponent>());
         }
     }
 
@@ -469,7 +1056,7 @@ namespace MotionTracker
         public static void Postfix(ref BaseAi __instance)
         {
 #if DEBUG
-            // MyLogger.LogMessage("(" + __instance.name + ":" + __instance.GetInstanceID() + ") BaseAi ProcessDead event.  NEED TO MANUALDELETE!");    // Lot of data!
+            // MyLogger.LogMessage("(" + __instance.name + ":" + __instance.GetInstanceID() + ") BaseAi ProcessDead event.");    // Lot of data!
 #endif
             PingComponent.ManualDelete(__instance.gameObject.GetComponent<PingComponent>());
         }
@@ -481,7 +1068,7 @@ namespace MotionTracker
         public static void Postfix(ref BaseAi __instance)
         {
 #if DEBUG
-            MyLogger.LogMessage("(" + __instance.name + ":" + __instance.GetInstanceID() + ") BaseAi ExitDead event.  NEED TO MANUAL DELETE!");
+            //MyLogger.LogMessage("(" + __instance.name + ":" + __instance.GetInstanceID() + ") BaseAi ExitDead event.");
 #endif
             PingComponent.ManualDelete(__instance.gameObject.GetComponent<PingComponent>());
         }

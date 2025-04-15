@@ -109,11 +109,23 @@ namespace MotionTracker
         [Description("Track motion of puffy birds")]
         public bool showPuffyBirds = true;
 
-        // CLM - Arrows!
+        [Section("Gear")]
+
         [Name("Show Arrows")]
         [Description("Show Arrows on radar")]
         public bool showArrows = true;
 
+        [Name("Show Coal")]
+        [Description("Show Coal on radar")]
+        public bool showCoal = true;
+
+        [Name("Show Raw Fish")]
+        [Description("Show Raw Fish on radar")]
+        public bool showRawFish = true;
+
+        [Name("Show Lost and Found Box")]
+        [Description("Show Lost and Found Box on radar")]
+        public bool showLostAndFoundBox = true;
 
         protected override void OnChange(FieldInfo field, object oldValue, object newValue)
         {
