@@ -17,11 +17,6 @@ namespace MotionTracker
         public PingManager(IntPtr intPtr) : base(intPtr)
         {
         }
-        // public enum AnimalType { Crow, Rabbit, Stag, Doe, Wolf, Timberwolf, Bear, Moose, PuffyBird };
-
-        // CLM - Hack... adding Arrow to the AnimalType enum so we can look for Arrows in the scene
-        // CLM - adding Cougar to the AnimalType enum so we can track cougars in the scene
-        // CLM - adding RawFish to the AnimalType enum so we can track RawCohoSalmon and other raw fish in the scene
         public enum AnimalType { Crow, Rabbit, Stag, Doe, Wolf, Timberwolf, Bear, Moose, PuffyBird, Cougar, Arrow, Coal, RawFish, LostAndFoundBox };
 
         public static bool isVisible = false;
@@ -42,8 +37,6 @@ namespace MotionTracker
         public int stuckPositionCounter = 0;    // This will track the number of times the radar icon is in the same position.
         public Dictionary<int, Vector3> iconPosition = new Dictionary<int, Vector3>();  // This will track the position of the radar icon for each icon instance ID.
 
-        //public RadialSpawnManager? radialSpawnManager;
-
         public void LogMessage(string message, [CallerLineNumber] int lineNumber = 0, [CallerMemberName] string? caller = null, [CallerFilePath] string? filepath = null)
         {
 #if DEBUG
@@ -54,25 +47,25 @@ namespace MotionTracker
         {
             Image[] icons = iconContainer.transform.GetComponentsInChildren<Image>();
 #if DEBUG
-            LogMessage("iconContainer has " + icons.Count() + " elements.");
+            // LogMessage("iconContainer has " + icons.Count() + " elements.");
 #endif
             foreach (Image icon in icons) 
             { 
                 if (icon.gameObject == null) 
                 {
 #if DEBUG
-                    LogMessage("(" + icon.name +") icon.gameObject == null"); 
+                    // LogMessage("(" + icon.name +") icon.gameObject == null"); 
 #endif
                 }
 
                 Destroy(icon.gameObject);
             }
 #if DEBUG
-            LogMessage("Clearing the iconPosition dictionary so we can start fresh with new icons.");
+            // LogMessage("Clearing the iconPosition dictionary so we can start fresh with new icons.");
 #endif 
             iconPosition.Clear();  // Clear the iconPosition dictionary so we can start fresh with new icons.
 #if DEBUG
-            LogMessage("Cleared Icons.");
+            // LogMessage("Cleared Icons.");
 #endif
         }
 
@@ -101,8 +94,13 @@ namespace MotionTracker
                         //                                            "GameObject:Position (" + icon.gameObject.transform.position + ")");
                         //#endif
 
-                        // Use this to limit type of icon we are tracking / cleaning up  (i.e. Crows).  Only use objects that move within the scene.
+                        // Use this to limit type of icon we are tracking / cleaning up  (i.e. Crows).
+                        // Only use objects that move within the scene AND are having issues with orphaned icons.
                         if (icon.name.Contains($"crow", StringComparison.CurrentCultureIgnoreCase)
+
+                            // None of these need to be tracked.  They are either static objects in the scene (They do not move.) or there are other
+                            // methods (i.e. baseAI) that allow these to be handled correctly.  
+
                             // || icon.name.Contains($"coal", StringComparison.CurrentCultureIgnoreCase)    // Not appropriate for Coal which is a static object in the scene.  It does not move.
                             // || icon.name.Contains($"ptarmigan", StringComparison.CurrentCultureIgnoreCase)
                             // || icon.name.Contains($"moose", StringComparison.CurrentCultureIgnoreCase)
@@ -115,7 +113,7 @@ namespace MotionTracker
                             )
                         {
 #if DEBUG
-                            // Show FILTERED (i.e. crows, coal) icons in the debug log.  Lot of data.
+                            // Show FILTERED (i.e. crow) icons in the debug log.  Lot of data.
                             //LogMessage("iconContainer icon # " + i + " Icon:ID (" + icon.name + ":" + icon.GetInstanceID() + ") " +
                             //                    "GameObject:ID (" + icon.gameObject.name + ":" + icon.gameObject.GetInstanceID() + ") " +
                             //                    "GameObject:Position (" + icon.gameObject.transform.position + ") stuckPositionCounter=" + stuckPositionCounter);
@@ -307,7 +305,7 @@ namespace MotionTracker
             instance = this;
 
 #if DEBUG
-            LogMessage(" Awake event.");
+            //LogMessage(" Awake event.");
 #endif
 
             trackerCanvas = MotionTrackerMain.trackerObject.transform.FindChild("Canvas").GetComponent<Canvas>();

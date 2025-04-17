@@ -144,7 +144,6 @@ namespace MotionTracker
                 Settings.spraypaintScale = new Vector3(Settings.options.spraypaintScale, Settings.options.spraypaintScale, Settings.options.spraypaintScale);
                 Settings.animalColor = new Color(1, 1, 1, Settings.options.animalOpacity);
                 Settings.spraypaintColor = new Color(0.62f, 0.29f, 0.0f, Settings.options.spraypaintOpacity);
-                /// Settings.spraypaintColor = new Color(0.0f, 1.0f, 1.0f, Settings.options.spraypaintOpacity);  /// CLM was here.
             }
         }
     }
@@ -173,8 +172,7 @@ namespace MotionTracker
             animalScale = new Vector3(options.animalScale, options.animalScale, options.animalScale);
             spraypaintScale = new Vector3(options.spraypaintScale, options.spraypaintScale, options.spraypaintScale);
             animalColor = new Color(1, 1, 1, options.animalOpacity);
-            /// spraypaintColor = new Color(0.62f, 0.29f, 0.0f, options.spraypaintOpacity);
-            spraypaintColor = new Color(0.0f, 1.0f, 1.0f, options.spraypaintOpacity);   /// CLM was here.
+            spraypaintColor = new Color(0.62f, 0.29f, 0.0f, options.spraypaintOpacity);
         }
     }
 }

@@ -264,7 +264,6 @@ namespace MotionTracker
                 }
 
 #if DEBUG
-                // if ((animalType == PingManager.AnimalType.Arrow) || (animalType == PingManager.AnimalType.Coal))
                 if (animalType == PingManager.AnimalType.Coal)
                 {
                    // LogMessage("Setting canvasGroup.alpha = 1f for pingComponent.name = (" + this.name + ":" + this.GetInstanceID() + ")");
@@ -275,7 +274,6 @@ namespace MotionTracker
             else
             {   // Not allowed to show or visibility is false
 #if DEBUG
-                // if ((animalType == PingManager.AnimalType.Arrow) || (animalType == PingManager.AnimalType.Coal))
                 if (animalType == PingManager.AnimalType.Coal)
                 {
                     // LogMessage("Setting canvasGroup.alpha = 0f for pingComponent.name = (" + this.name + ":" + this.gameObject.GetInstanceID() + ")");
@@ -299,24 +297,12 @@ namespace MotionTracker
         public void Initialize(PingManager.AnimalType type)
         {
 #if DEBUG
-            LogMessage("Initialize pingComponent.name = (" + this.name + ":" + this.gameObject.GetInstanceID() + ")");
+            // LogMessage("Initialize pingComponent.name = (" + this.name + ":" + this.gameObject.GetInstanceID() + ")");
 #endif
 
             attachedGameObject = this.gameObject;
             animalType = type;
             assignedCategory = PingCategory.Animal;
-
-            //if (animalType == PingManager.AnimalType.Arrow)
-            //{
-            //    LogMessage("Initialize Arrow pingComponent.name = (" + this.name + ")");
-            //    // attachedGearItem = (GearItem)this.gameObject;
-            //    GearItem gi = this.gameObject.AddComponent<GearItem>();
-            //    GearItem gi = this.gameObject.GetComponent<GearItem>();
-            //    if (gi != null)
-            //    {
-            //        MelonLogger.Msg("[MotionTracker].PingComponent.Initialize.221: See GearItem for Arrow name = (" + gi.name + ")");
-            //    }
-            //}
 
             CreateIcon();
 
@@ -340,7 +326,7 @@ namespace MotionTracker
         private void OnDisable()
         {
 #if DEBUG
-            LogMessage("Deleting pingComponent for (" + this.animalType + ")");
+            // LogMessage("Deleting pingComponent for (" + this.animalType + ")");
 #endif
             DeleteIcon();
         }
@@ -355,8 +341,7 @@ namespace MotionTracker
                     {
                         timer += Time.deltaTime;    // Accumulated time since we last logged stuff
 
-                        // begin: From the Illusion on Discord.  How to address stuff displaying on radar that aren't there.
-                        // https://discord.com/channels/322211727192358914/734738909078093894/1293654251733520446
+                        // Address stuff displaying on radar that aren't there.
                         BaseAi baseAi = gameObject.GetComponent<BaseAi>();
                         if (baseAi != null)
                         {
@@ -374,7 +359,6 @@ namespace MotionTracker
                                 ManualDelete(this);
                                 return;
                             }
-                        // end: From the Illusion on Discord.  How to address stuff displaying on radar that aren't there.
                         }
 
                         UpdateLocatableIcons();
@@ -404,7 +388,7 @@ namespace MotionTracker
                     ManualDelete(this);
 
                     #if DEBUG
-                        LogMessage("rectTransform null so ignoring pingComponent.name = (" + this.name + ":" + GetInstanceID() + ")");
+                        // LogMessage("rectTransform null so ignoring pingComponent.name = (" + this.name + ":" + GetInstanceID() + ")");
                     #endif
                     
                     return;
@@ -426,7 +410,6 @@ namespace MotionTracker
                 }
                 else if (assignedCategory == PingCategory.Animal)
                 {
-                    // if (iconImage.color != Settings.spraypaintColor || rectTransform.localScale != Settings.spraypaintScale)    // CLM: Should this be using animalScale instead of sprayScale?
                     if (iconImage.color != Settings.animalColor || rectTransform.localScale != Settings.animalScale)    // Should this be using animalScale instead of sprayScale?
                     {
                         rectTransform.localScale = Settings.animalScale;
@@ -438,16 +421,10 @@ namespace MotionTracker
                         iconImage.color = Color.yellow;    // Color the arrows to help make them show up for easier viewing.
                     }
 
-                    //if (this.name.Contains("RawFish"))
-                    //{
-                    //    iconImage.color = Color.yellow;     // Make the RawFish show up yellow to for easier viewing.
-                    //}
-
 #if DEBUG
-                    //if ((timer > triggerTime) && (name.Contains("RawCohoSalmon")))
                     if ((timer > triggerTime) && (name.Contains("RawFish")))
                     {
-                        //LogMessage("Radar Coal updating (" + this.name + ":" + this.attachedGearItem.m_InstanceID + ") position is (" + this.transform.position + ")");
+                        //LogMessage("Radar RawFish updating (" + this.name + ":" + this.attachedGearItem.m_InstanceID + ") position is (" + this.transform.position + ")");
                     }
 
                     //if (timer > triggerTime)
@@ -498,7 +475,6 @@ namespace MotionTracker
             var scale = radarSize / Settings.options.detectionRange;
 
 #if DEBUG
-            //if (name.Contains("RawCohoSalmon"))
             if (name.Contains("RawFish"))
             {
                 if (timer > triggerTime)

@@ -50,7 +50,7 @@ namespace MotionTracker
             MotionTracker.Settings.OnLoad();
         }
 
-        public static void LoadEmbeddedAssetBundle()
+        public static void LoadEmbeddedAssetBundle()    // Orginal AssetBundle with original prefabs
         {
             MemoryStream memoryStream;
             Stream stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("MotionTracker.Resources.motiontracker");
@@ -60,7 +60,7 @@ namespace MotionTracker
             assetBundle = AssetBundle.LoadFromMemory(memoryStream.ToArray());
 
         }
-        public static void LoadEmbeddedAssetBundle2()
+        public static void LoadEmbeddedAssetBundle2()   // Additional AssetBundle with additional prefabs (Cougar, Arrow, Coal, Raw Fish, Lost and Found Box)
         {
             MemoryStream memoryStream;
             Stream stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("MotionTracker.Resources.motiontrackerassetbundleprefab");
@@ -74,13 +74,13 @@ namespace MotionTracker
         public override void OnSceneWasLoaded(int buildIndex, string sceneName)
 		{
 #if DEBUG
-            LogMessage($"Scene {sceneName} with build index {buildIndex} has been loaded.");    // CLM
+            //LogMessage($"Scene {sceneName} with build index {buildIndex} has been loaded.");    // CLM
 #endif
             if (sceneName.Contains("MainMenu"))
             {
                 //SCRIPT_InterfaceManager/_GUI_Common/Camera/Anchor/Panel_OptionsMenu/Pages/ModSettings/GameObject/ScrollPanel/Offset/
 #if DEBUG
-                LogMessage("Scene name containing MainMenu " + sceneName + " was loaded.");
+                // LogMessage("Scene name containing MainMenu " + sceneName + " was loaded.");
 #endif
                 PingManager.inMenu = true;
                 
@@ -90,7 +90,7 @@ namespace MotionTracker
             {
 
 #if DEBUG
-                    LogMessage("Scene name containing SANDBOX " + sceneName + " was loaded.");
+                    // LogMessage("Scene name containing SANDBOX " + sceneName + " was loaded.");
 #endif
 
                 if (PingManager.instance)
@@ -102,7 +102,7 @@ namespace MotionTracker
             else
             {
 #if DEBUG
-                LogMessage("Non-Menu and Non-Sandbox scene " + sceneName + " was loaded. (3)");
+                // LogMessage("Non-Menu and Non-Sandbox scene " + sceneName + " was loaded.");
 #endif
                 // This is a scene that doesn't have "MainMenu" or "Sandbox" in the name.
                 // The original MotionTracker was focused on animals and spraypaint decals.
@@ -141,12 +141,7 @@ namespace MotionTracker
                 animalPingPrefabs.Add(PingManager.AnimalType.Doe, GameObject.Instantiate(assetBundle.LoadAsset<GameObject>("doe"), prefabSafe.transform));
                 animalPingPrefabs.Add(PingManager.AnimalType.PuffyBird, GameObject.Instantiate(assetBundle.LoadAsset<GameObject>("ptarmigan"), prefabSafe.transform));
 
-                // CLM - Arrows!
-                // The asset bundle contains user developed sprites.  No Arrow or Cougar sprite... so would need to either
-                // add an Arrow and Cougar sprite and rebuild the asset bundle or create a separate asset bundle for the Arrow and Cougar and anything else.
-                // 
-                // animalPingPrefabs.Add(PingManager.AnimalType.Arrow, GameObject.Instantiate(assetBundle.LoadAsset<GameObject>("arrow"), prefabSafe.transform));
-                
+                // Note these are additional prefabs from the second asset bundle.
                 animalPingPrefabs.Add(PingManager.AnimalType.Arrow, GameObject.Instantiate(assetBundle2.LoadAsset<GameObject>("arrow"), prefabSafe.transform));  
                 animalPingPrefabs.Add(PingManager.AnimalType.Coal, GameObject.Instantiate(assetBundle2.LoadAsset<GameObject>("coal"), prefabSafe.transform));  
                 animalPingPrefabs.Add(PingManager.AnimalType.RawFish, GameObject.Instantiate(assetBundle2.LoadAsset<GameObject>("rawcohosalmon"), prefabSafe.transform));
